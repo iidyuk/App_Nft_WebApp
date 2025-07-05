@@ -20,6 +20,31 @@ yarn install
 bun install
 ```
 
+## Supabase設定
+
+### 1. 環境変数の設定
+
+`.env`ファイルを作成し、以下の環境変数を設定してください：
+
+```env
+NUXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NUXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+### 2. Supabase Storageバケットの作成
+
+Supabaseダッシュボードで以下の手順を実行してください：
+
+1. **Storage**セクションに移動
+2. **New bucket**をクリック
+3. バケット名を`images`として作成
+4. **Public bucket**として設定（画像を公開アクセス可能にするため）
+
+### 3. Storageポリシーの設定
+
+`images`バケットに対してポリシーを設定してください：
+
+
 ## Development Server
 
 Start the development server on `http://localhost:3000`:
