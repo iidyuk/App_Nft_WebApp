@@ -76,7 +76,7 @@
 
 <script setup lang="ts">
 // 画像アップロード機能をインポート
-const { uploadImage, isUploading, uploadProgress, uploadedImageUrl, uploadError, resetUploadState } = useImageUpload()
+const { uploadImage, isUploading, uploadProgress, uploadedImageUrl, uploadError, resetUploadState } = useSupabaseUpload()
 
 // 画像選択関連のリアクティブ変数
 const selectedImage = ref<string | null>(null)

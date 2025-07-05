@@ -1,6 +1,6 @@
 import { supabase } from '~/lib/supabase'
 
-export const useImageUpload = () => {
+export const useSupabaseUpload = () => {
   const isUploading = ref(false)
   const uploadProgress = ref(0)
   const uploadedImageUrl = ref<string | null>(null)
