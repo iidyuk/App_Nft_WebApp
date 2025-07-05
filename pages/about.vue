@@ -10,7 +10,7 @@
 
 // 環境変数のテスト
 const config = useRuntimeConfig()
-console.log('runtimeConfig.public')
+console.log(' runtimeConfig.public ')
 console.log('supabaseUrl:', config.public.supabaseUrl)
 console.log('supabaseAnonKey:', config.public.supabaseAnonKey)
 
