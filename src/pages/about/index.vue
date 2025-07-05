@@ -44,10 +44,10 @@ const handleImageUploaded = (url: string, fileName: string) => {
 }
 
 // 環境変数のテスト
-// const config = useRuntimeConfig()
-// console.log(' runtimeConfig.public ')
-// console.log('supabaseUrl:', config.public.supabaseUrl)
-// console.log('supabaseAnonKey:', config.public.supabaseAnonKey)
+const config = useRuntimeConfig()
+console.log(' runtimeConfig.public ')
+console.log('supabaseUrl:', config.public.supabaseUrl)
+console.log('supabaseAnonKey:', config.public.supabaseAnonKey)
 
 // ここにロジック（変数、関数、API呼び出しなど）を記述
 </script>
