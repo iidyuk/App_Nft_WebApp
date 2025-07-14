@@ -14,11 +14,12 @@
     "@nuxt/fonts": "^0.11.4",
     "@nuxt/icon": "^1.15.0",
     "@nuxt/ui": "^3.2.0",
+    "@supabase/supabase-js": "^2.39.7",
     "eslint": "^9.30.1",
+    "nft.storage": "^7.2.0",
     "nuxt": "^3.17.6",
     "typescript": "^5.8.3",
     "vue": "^3.5.17",
-    "vue-router": "^4.5.1",
-    "@supabase/supabase-js": "^2.39.7"
+    "vue-router": "^4.5.1"
   }
 }

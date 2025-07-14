@@ -10,6 +10,8 @@ export default defineNuxtConfig({
     public: {
       supabaseUrl: process.env.NUXT_PUBLIC_SUPABASE_URL,
       supabaseAnonKey: process.env.NUXT_PUBLIC_SUPABASE_ANON_KEY,
+      nftStorageApiKey: process.env.NFT_STORAGE_API_KEY,
+      pinataJWTKey: process.env.PINATA_JWT_KEY
     }
   },
 

@@ -20,18 +20,54 @@ yarn install
 bun install
 ```
 
-## Supabase設定
+## Pinata設定
 
-### 1. 環境変数の設定
+### 1. Pinata APIキーの取得
+
+1. [Pinata](https://app.pinata.cloud/) にアクセス
+2. アカウントを作成またはログイン
+3. API KeysセクションでJWT Keyを取得
+
+### 2. 環境変数の設定
 
 `.env`ファイルを作成し、以下の環境変数を設定してください：
 
 ```env
+# Pinata JWT Key
+PINATA_JWT_KEY=your_pinata_jwt_key_here
+
+# NFT.Storage API Key
+NFT_STORAGE_API_KEY=your_nft_storage_api_key_here
+
+# Supabase設定（既存）
 NUXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
 NUXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
-### 2. Supabase Storageバケットの作成
+## NFT.Storage設定
+
+### 1. NFT.Storage APIキーの取得
+
+1. [NFT.Storage](https://nft.storage/) にアクセス
+2. アカウントを作成またはログイン
+3. APIキーを取得
+
+### 2. 環境変数の設定
+
+`.env`ファイルを作成し、以下の環境変数を設定してください：
+
+```env
+# NFT.Storage API Key
+NFT_STORAGE_API_KEY=your_nft_storage_api_key_here
+
+# Supabase設定（既存）
+NUXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NUXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+## Supabase設定
+
+### 1. Supabase Storageバケットの作成
 
 Supabaseダッシュボードで以下の手順を実行してください：
 
@@ -40,7 +76,7 @@ Supabaseダッシュボードで以下の手順を実行してください：
 3. バケット名を`images`として作成
 4. **Public bucket**として設定（画像を公開アクセス可能にするため）
 
-### 3. Storageポリシーの設定
+### 2. Storageポリシーの設定
 
 `images`バケットに対してポリシーを設定してください：
 
