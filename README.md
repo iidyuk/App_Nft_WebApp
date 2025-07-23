@@ -44,26 +44,6 @@ NUXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
 NUXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
-## NFT.Storage設定
-
-### 1. NFT.Storage APIキーの取得
-
-1. [NFT.Storage](https://nft.storage/) にアクセス
-2. アカウントを作成またはログイン
-3. APIキーを取得
-
-### 2. 環境変数の設定
-
-`.env`ファイルを作成し、以下の環境変数を設定してください：
-
-```env
-# NFT.Storage API Key
-NFT_STORAGE_API_KEY=your_nft_storage_api_key_here
-
-# Supabase設定（既存）
-NUXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NUXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-```
 
 ## Supabase設定
 
