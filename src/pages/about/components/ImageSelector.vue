@@ -1,11 +1,12 @@
 <template>
-  <div class="mb-6">
-    <h2 class="text-xl font-semibold text-gray-700 mb-4">JPG画像を選択してください</h2>
+  <div class="my-8 p-6 rounded-lg mx-auto w-full flex flex-col justify-center" :style="{ backgroundColor: '#EAE9E9', maxWidth: '800px', height: selectedImage ? 'auto' : '400px', minHeight: selectedImage ? '400px' : '400px' }">
     
     <!-- ファイル選択ボタン -->
-    <div class="mb-4">
-      <label for="image-upload" class="cursor-pointer inline-block bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded transition">
-        画像を選択
+    <div v-if="!selectedImage" class="mb-4">
+      <label for="image-upload" class="cursor-pointer inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded transition">
+        <svg xmlns="http://www.w3.org/2000/svg" height="120px" viewBox="0 -960 960 960" width="120px" fill="#1A1A1A">
+          <path d="M480-480ZM186.67-120q-27 0-46.84-19.83Q120-159.67 120-186.67v-586.66q0-27 19.83-46.84Q159.67-840 186.67-840h350v66.67h-350v586.66h586.66v-350H840v350q0 27-19.83 46.84Q800.33-120 773.33-120H186.67ZM240-281.33h480L574-476 449.33-311.33 356.67-434 240-281.33Zm448.67-322V-688h-85.34v-66.67h85.34V-840h66.66v85.33H840V-688h-84.67v84.67h-66.66Z"/>
+        </svg>
       </label>
       <input
         id="image-upload"
@@ -18,23 +19,28 @@
 
     <!-- 選択された画像のプレビュー -->
     <div v-if="selectedImage" class="mt-4">
-      <h3 class="text-lg font-medium text-gray-600 mb-2">選択された画像:</h3>
-      <img
-        :src="selectedImage"
-        alt="選択された画像"
-        class="max-w-full h-auto max-h-64 mx-auto rounded-lg shadow-md"
-      />
-      <p class="text-sm text-gray-500 mt-2">{{ selectedFileName }}</p>
+      <!-- <h3 class="text-lg font-medium text-gray-600 mb-2">Selected Image:</h3> -->
+      <div>
+        <img
+          :src="selectedImage"
+          alt="選択された画像"
+          class="mx-auto rounded-lg shadow-md object-contain"
+          style="width: 30vw; min-width: 240px; max-height: 16rem;"
+        />
+        <p class="text-sm text-gray-500 mt-2">{{ selectedFileName }}</p>
+      </div>
       
       <!-- アップロードボタン -->
-      <div class="mt-4">
-        <button
-          @click="handleUpload"
-          :disabled="isUploading"
-          class="bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white font-semibold py-2 px-6 rounded transition"
-        >
-          {{ isUploading ? 'アップロード中...' : 'Supabaseにアップロード' }}
-        </button>
+      <div>
+        <p class="mb-2">
+          <button
+            @click="handleUpload"
+            :disabled="isUploading"
+            class="bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white font-semibold py-2 px-6 rounded transition"
+          >
+            {{ isUploading ? 'Uploading...' : 'Upload to Supabase' }}
+          </button>
+        </p>
       </div>
 
       <!-- アップロード進捗 -->
@@ -68,8 +74,8 @@
 
     <!-- ファイルが選択されていない場合のメッセージ -->
     <div v-else class="mt-4 p-4 bg-gray-100 rounded-lg">
-      <p class="text-gray-500">JPG画像を選択してください</p>
-      <p class="text-xs text-gray-400 mt-1">※ JPG/JPEGファイルのみ対応</p>
+      <p class="text-gray-500">Click or Drag & Drop</p>
+      <p class="text-xs text-gray-400 mt-1">※ Only JPG/JPEG files</p>
     </div>
   </div>
 </template>
