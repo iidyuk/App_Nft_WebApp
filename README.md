@@ -36,9 +36,6 @@ bun install
 # Pinata JWT Key
 PINATA_JWT_KEY=your_pinata_jwt_key_here
 
-# NFT.Storage API Key
-NFT_STORAGE_API_KEY=your_nft_storage_api_key_here
-
 # Supabase設定（既存）
 NUXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
 NUXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
