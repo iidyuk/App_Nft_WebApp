@@ -20,5 +20,8 @@ export default defineNuxtConfig({
     '@nuxt/ui',
     '@nuxt/icon',
     '@nuxt/fonts'
-  ]
+  ],
+
+  // Tailwind CSS設定（@nuxt/uiが自動的にTailwindを含む）
+  css: ['~/assets/css/main.css']
 })
