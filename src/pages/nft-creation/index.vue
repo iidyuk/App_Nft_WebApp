@@ -2,27 +2,19 @@
   <div class="max-w-lg mx-auto mt-20 p-8 bg-white rounded-lg shadow text-center">
     <h1 class="text-3xl font-bold text-purple-600 mb-4">NFT作成</h1>
     
-    <!-- ステップ表示 -->
-    <div class="mb-6 flex justify-center space-x-4">
-      <div class="flex items-center">
-        <div class="w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center text-sm font-bold">✓</div>
-        <span class="ml-2 text-sm text-green-600">画像アップロード完了</span>
-      </div>
-      <div class="flex items-center">
-        <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold" :class="metadataUploadResult?.success ? 'bg-yellow-500 text-white' : 'bg-blue-500 text-white'">2</div>
-        <span class="ml-2 text-sm" :class="metadataUploadResult?.success ? 'text-gray-800' : 'text-gray-600'">メタデータ作成</span>
-      </div>
-      <div class="flex items-center">
-        <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold" :class="metadataUploadResult?.success ? 'bg-purple-500 text-white' : 'bg-gray-300 text-gray-500'">3</div>
-        <span class="ml-2 text-sm" :class="metadataUploadResult?.success ? 'text-gray-800' : 'text-gray-400'">NFT発行</span>
-      </div>
-    </div>
-
-    <!-- 画像アップロード完了情報の表示 -->
+    <!-- アップロード済み画像の表示 -->
     <div v-if="uploadedImageInfo" class="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-      <h3 class="text-lg font-medium text-green-800 mb-2">画像アップロード完了</h3>
-      <p class="text-sm text-green-600 mb-2">ファイル名: {{ uploadedImageInfo.fileName }}</p>
-      <p class="text-xs text-green-500 break-all">URL: {{ uploadedImageInfo.url }}</p>
+      <h3 class="text-lg font-medium text-green-800 mb-4">アップロード済み画像</h3>
+      <div class="flex flex-col items-center">
+        <img
+          :src="uploadedImageInfo.url"
+          :alt="uploadedImageInfo.fileName"
+          class="rounded-lg shadow-md object-contain mb-3"
+          style="width: 20vw; min-width: 200px; max-width: 300px; max-height: 200px;"
+        />
+        <p class="text-sm text-green-600 mb-1">ファイル名: {{ uploadedImageInfo.fileName }}</p>
+        <!-- <p class="text-xs text-green-500 break-all text-center">URL: {{ uploadedImageInfo.url }}</p> -->
+      </div>
     </div>
 
     <!-- Step 2: メタデータアップロードコンポーネント -->

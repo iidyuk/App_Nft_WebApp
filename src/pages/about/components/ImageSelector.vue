@@ -35,10 +35,11 @@
         <p class="mb-2">
           <button
             @click="handleUpload"
-            :disabled="isUploading"
-            class="bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white font-semibold py-2 px-6 rounded transition"
+            :disabled="isUploading || isUploaded"
+            class="disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-2 px-6 rounded transition"
+            :class="isUploaded ? 'bg-gray-400' : 'bg-green-500 hover:bg-green-600'"
           >
-            {{ isUploading ? 'Uploading...' : 'Upload to Supabase' }}
+            {{ isUploaded ? 'Upload Complete' : (isUploading ? 'Uploading...' : 'Upload to Supabase') }}
           </button>
         </p>
       </div>
@@ -60,7 +61,7 @@
       </div>
 
       <!-- アップロード成功 -->
-      <div v-if="uploadedImageUrl" class="mt-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
+      <!-- <div v-if="uploadedImageUrl" class="mt-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
         <p class="text-sm font-semibold mb-2">アップロード成功！</p>
         <p class="text-xs break-all">{{ uploadedImageUrl }}</p>
         <button
@@ -69,7 +70,7 @@
         >
           URLをコピー
         </button>
-      </div>
+      </div> -->
     </div>
 
     <!-- ファイルが選択されていない場合のメッセージ -->
@@ -88,6 +89,14 @@ const { uploadImage, isUploading, uploadProgress, uploadedImageUrl, uploadError,
 const selectedImage = ref<string | null>(null)
 const selectedFileName = ref<string>('')
 const selectedFile = ref<File | null>(null)
+
+// プロパティの定義
+const props = defineProps<{
+  isUploaded?: boolean
+}>()
+
+// アップロード完了状態
+const isUploaded = computed(() => props.isUploaded || false)
 
 // 親コンポーネントに選択されたファイル情報を渡すためのemit
 const emit = defineEmits<{

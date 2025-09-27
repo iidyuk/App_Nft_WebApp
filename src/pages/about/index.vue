@@ -21,14 +21,15 @@
     <!-- Step 1: 画像選択コンポーネント -->
     <ImageSelector 
       @image-selected="handleImageSelected" 
-      @image-uploaded="handleImageUploaded" 
+      @image-uploaded="handleImageUploaded"
+      :is-uploaded="!!uploadedImageInfo"
     />
 
     <!-- アップロード完了情報の表示 -->
     <div v-if="uploadedImageInfo" class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
       <h3 class="text-lg font-medium text-blue-800 mb-2">画像アップロード完了</h3>
-      <p class="text-sm text-blue-600 mb-2">ファイル名: {{ uploadedImageInfo.fileName }}</p>
-      <p class="text-xs text-blue-500 break-all">URL: {{ uploadedImageInfo.url }}</p>
+      <!-- <p class="text-sm text-blue-600 mb-2">ファイル名: {{ uploadedImageInfo.fileName }}</p>
+      <p class="text-xs text-blue-500 break-all">URL: {{ uploadedImageInfo.url }}</p> -->
       
       <!-- NFT作成ページへの遷移ボタン -->
       <div class="mt-4">
@@ -71,8 +72,8 @@ const handleImageUploaded = (url: string, fileName: string) => {
 }
 
 // 環境変数のテスト
-const config = useRuntimeConfig()
-console.log(' runtimeConfig.public ')
-console.log('supabaseUrl:', config.public.supabaseUrl)
-console.log('supabaseAnonKey:', config.public.supabaseAnonKey)
+// const config = useRuntimeConfig()
+// console.log(' runtimeConfig.public ')
+// console.log('supabaseUrl:', config.public.supabaseUrl)
+// console.log('supabaseAnonKey:', config.public.supabaseAnonKey)
 </script>
