@@ -133,7 +133,8 @@ const handleImageSelect = (event: Event) => {
 const handleUpload = async () => {
   if (!selectedFile.value) return
   
-  const result = await uploadImage(selectedFile.value)
+  // imagesバケットを指定してアップロード
+  const result = await uploadImage(selectedFile.value, 'images')
   
   if (result.success && result.url && result.fileName) {
     // 親コンポーネントにアップロード完了を通知
