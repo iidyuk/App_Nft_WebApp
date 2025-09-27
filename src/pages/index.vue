@@ -1,7 +1,7 @@
 <template>
   <div class="max-w-lg mx-auto mt-20 p-8 bg-white rounded-lg shadow text-center">
     <h1 class="text-3xl font-bold text-green-600 mb-4">nft</h1>
-    <p class="mb-6 text-gray-700">Let's make an NFT from this jpg/jpeg file.</p>
+    <p class="mb-6 text-gray-700">Let's make NFT from jpg/jpeg file.</p>
     <div class="space-y-4">
       <NuxtLink to="/about" class="inline-block bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded transition">Registration</NuxtLink>
       <br>
