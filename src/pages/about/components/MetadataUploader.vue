@@ -26,13 +26,13 @@
       </div>
     </div>
     
-    <!-- 手動アップロードボタン（自動アップロードが無効な場合） -->
-    <div v-else-if="!autoUpload" class="text-center">
+    <!-- 手動アップロードボタン -->
+    <div v-else class="text-center">
       <button
         @click="handleUploadMetadata"
-        class="bg-yellow-600 hover:bg-yellow-700 text-white font-semibold py-2 px-6 rounded transition"
+        class="bg-yellow-600 hover:bg-yellow-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-300 ease-in-out transform hover:scale-105"
       >
-        メタデータをPINATAにアップロード
+        メタデータを生成してPINATAにアップロード
       </button>
     </div>
   </div>
@@ -144,9 +144,9 @@ const retryUpload = () => {
   handleUploadMetadata()
 }
 
-// 画像情報が変更された時の自動アップロード
+// 画像情報が変更された時の自動アップロード（明示的にtrueの場合のみ）
 watch(() => props.uploadedImageInfo, (newImageInfo) => {
-  if (newImageInfo && (props.autoUpload !== false)) {
+  if (newImageInfo && props.autoUpload === true) {
     // 少し遅延を入れて自動アップロード
     setTimeout(() => {
       handleUploadMetadata()

@@ -1,8 +1,24 @@
 <template>
   <div class="max-w-lg mx-auto mt-20 p-8 bg-white rounded-lg shadow text-center">
     <h1 class="text-3xl font-bold text-green-600 mb-4">Registration</h1>
+    
+    <!-- ステップ表示 -->
+    <div class="mb-6 flex justify-center space-x-4">
+      <div class="flex items-center">
+        <div class="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center text-sm font-bold">1</div>
+        <span class="ml-2 text-sm text-gray-600">画像アップロード</span>
+      </div>
+      <div class="flex items-center">
+        <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold" :class="uploadedImageInfo ? 'bg-yellow-500 text-white' : 'bg-gray-300 text-gray-500'">2</div>
+        <span class="ml-2 text-sm" :class="uploadedImageInfo ? 'text-gray-800' : 'text-gray-400'">メタデータ作成</span>
+      </div>
+      <div class="flex items-center">
+        <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold" :class="metadataUploadResult?.success ? 'bg-purple-500 text-white' : 'bg-gray-300 text-gray-500'">3</div>
+        <span class="ml-2 text-sm" :class="metadataUploadResult?.success ? 'text-gray-800' : 'text-gray-400'">NFT発行</span>
+      </div>
+    </div>
 
-    <!-- 画像選択コンポーネント -->
+    <!-- Step 1: 画像選択コンポーネント -->
     <ImageSelector 
       @image-selected="handleImageSelected" 
       @image-uploaded="handleImageUploaded" 
@@ -15,13 +31,15 @@
       <p class="text-xs text-blue-500 break-all">URL: {{ uploadedImageInfo.url }}</p>
     </div>
 
-    <!-- メタデータアップロードコンポーネント -->
+    <!-- Step 2: メタデータアップロードコンポーネント（画像アップロード完了後に表示） -->
     <MetadataUploader 
+      v-if="uploadedImageInfo"
       :uploaded-image-info="uploadedImageInfo"
+      :auto-upload="false"
       @metadata-uploaded="handleMetadataUploaded"
     />
 
-    <!-- NFT発行コンポーネントを呼び出す -->
+    <!-- Step 3: NFT発行コンポーネント（メタデータアップロード完了後に表示） -->
     <NFTMinter v-if="metadataUploadResult?.success" :metadata-url="metadataUploadResult.url" />
 
     <NuxtLink to="/" class="inline-block bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded transition mt-8">Top Page</NuxtLink>
