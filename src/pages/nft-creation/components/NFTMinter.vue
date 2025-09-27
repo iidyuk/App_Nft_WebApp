@@ -83,4 +83,4 @@ const mintNFT = async () => {
     isMintingNFT.value = false
   }
 }
-</script> 
+</script>
