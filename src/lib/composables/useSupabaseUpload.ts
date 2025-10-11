@@ -1,7 +1,7 @@
-import { supabaseConfig } from '~/lib/external/supabase'
+import { useSupabaseConfig } from '~/lib/external/supabase'
 
 export const useSupabaseUpload = () => {
-  const supabase = supabaseConfig()
+  const supabase = useSupabaseConfig()
   const isUploading = ref(false)
   const uploadProgress = ref(0)
   const uploadedImageUrl = ref<string | null>(null)
