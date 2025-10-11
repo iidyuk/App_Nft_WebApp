@@ -1,7 +1,7 @@
-import { useSupabase } from '~/lib/supabase'
+import { supabaseConfig } from '~/lib/external/supabase'
 
 export const useSupabaseUpload = () => {
-  const supabase = useSupabase()
+  const supabase = supabaseConfig()
   const isUploading = ref(false)
   const uploadProgress = ref(0)
   const uploadedImageUrl = ref<string | null>(null)
@@ -16,8 +16,8 @@ export const useSupabaseUpload = () => {
 
       // ファイル拡張子をチェック
       const fileExtension = file.name.split('.').pop()?.toLowerCase()
-      if (fileExtension !== 'jpg' && fileExtension !== 'jpeg') {
-        throw new Error('JPGファイルのみアップロード可能です')
+      if (fileExtension !== 'jpg' && fileExtension !== 'jpeg' && fileExtension !== 'png') {
+        throw new Error('JPG/JPEG/PNGファイルのみアップロード可能です')
       }
 
       // uploadsフォルダ内にファイルをアップロード

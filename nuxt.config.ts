@@ -4,6 +4,14 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   srcDir: 'src/',
 
+  // composablesディレクトリの設定
+  imports: {
+    dirs: [
+      // 'composables',
+      'lib/composables'
+    ]
+  },
+
   // 環境変数の設定
   runtimeConfig: {
     // クライアントサイドでも利用可能な環境変数
