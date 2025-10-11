@@ -16,11 +16,8 @@ export default defineNuxtConfig({
 
   modules: [
     '@nuxt/eslint',
-    '@nuxt/ui',
+    '@nuxtjs/tailwindcss',
     '@nuxt/icon',
     '@nuxt/fonts'
-  ],
-
-  // Tailwind CSS設定（@nuxt/uiが自動的にTailwindを含む）
-  css: ['~/assets/css/main.css']
+  ]
 })
