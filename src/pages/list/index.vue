@@ -29,15 +29,6 @@
 
     <!-- 画像一覧 -->
     <div v-else>
-      <!-- <div class="mb-6 text-center">
-        <p class="text-gray-600">{{ images.length }}枚の画像が見つかりました</p>
-        <button 
-          @click="fetchImages" 
-          class="mt-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 px-3 rounded text-sm transition"
-        >
-          更新
-        </button>
-      </div> -->
 
       <div class="grid gap-6" style="grid-template-columns: repeat(auto-fit, minmax(200px, 300px)); justify-content: center;">
         <div 
@@ -57,35 +48,6 @@
               />
             </p>
           </div>
-          
-          <!-- 画像情報 -->
-          <!-- <div class="p-4">
-            <h3 class="font-semibold text-gray-800 truncate" :title="image.name">
-              {{ image.name }}
-            </h3>
-            <p class="text-sm text-gray-600 mt-1">
-              Size: {{ formatFileSize(image.metadata?.size) }}
-            </p>
-            <p class="text-sm text-gray-600">
-              Updated: {{ formatDate(image.updated_at) }}
-            </p>
-            
-            <div class="mt-3 flex gap-2">
-              <button 
-                @click="copyImageUrl(image.url)"
-                class="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-xs py-1 px-2 rounded transition"
-              >
-                URLコピー
-              </button>
-              <a 
-                :href="image.url" 
-                target="_blank"
-                class="flex-1 bg-gray-500 hover:bg-gray-600 text-white text-xs py-1 px-2 rounded text-center transition"
-              >
-                開く
-              </a>
-            </div>
-          </div> -->
           
         </div>
       </div>
@@ -125,8 +87,8 @@ const isLoading = ref(false)
 const error = ref(false)
 const errorMessage = ref<string>('')
 
-// Supabaseクライアントの初期化
-const config = useRuntimeConfig()
+// Supabaseクライアントの初期化（接続設定）
+const config = useRuntimeConfig()  // Nuxt.jsの設定取得関数
 const supabase = createClient(
   config.public.supabaseUrl,
   config.public.supabaseAnonKey
@@ -141,7 +103,7 @@ const fetchImages = async () => {
   try {
     console.log('画像一覧取得開始...')
     
-    // imagesバケットのuploadsフォルダからファイル一覧を取得
+    // SupabaseのStorage-imagesバケット-uploadsフォルダからファイル一覧を取得
     const { data: files, error: fetchError } = await supabase
       .storage
       .from('images')
@@ -166,8 +128,8 @@ const fetchImages = async () => {
 
     // JPG/JPEGファイルのみをフィルタリング
     const imageFiles = files.filter(file => {
-      const extension = file.name.split('.').pop()?.toLowerCase()
-      return extension === 'jpg' || extension === 'jpeg'
+      const extension = file.name.split('.').at(-1)?.toLowerCase()
+      return extension === 'jpg' || extension === 'jpeg' || extension === 'png'
     })
 
     console.log(`画像ファイル数: ${imageFiles.length}`)
@@ -188,7 +150,7 @@ const fetchImages = async () => {
         updated_at: file.updated_at,
         created_at: file.created_at,
         metadata: file.metadata
-      }
+      } as ImageFile
     })
 
     console.log(`表示する画像数: ${images.value.length}`)
@@ -202,44 +164,13 @@ const fetchImages = async () => {
   }
 }
 
-// ファイルサイズをフォーマット
-const formatFileSize = (bytes?: number): string => {
-  if (!bytes) return '不明'
-  if (bytes < 1024) return bytes + ' B'
-  if (bytes < 1024 * 1024) return Math.round(bytes / 1024) + ' KB'
-  return Math.round(bytes / (1024 * 1024)) + ' MB'
-}
-
-// 日付をフォーマット
-const formatDate = (dateString: string): string => {
-  const date = new Date(dateString)
-  return date.toLocaleDateString('ja-JP', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
-}
-
-// 画像URLをクリップボードにコピー
-const copyImageUrl = async (url: string) => {
-  try {
-    await navigator.clipboard.writeText(url)
-    alert('URLをクリップボードにコピーしました')
-  } catch (error) {
-    console.error('URLのコピーに失敗しました:', error)
-    alert('URLのコピーに失敗しました')
-  }
-}
-
 // 画像読み込みエラーの処理
 const handleImageError = (event: Event) => {
   const img = event.target as HTMLImageElement
   img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect width="200" height="200" fill="%23f3f4f6"/><text x="100" y="100" text-anchor="middle" dy=".3em" fill="%236b7280" font-family="Arial, sans-serif" font-size="14">画像を読み込めません</text></svg>'
 }
 
-// コンポーネントマウント時に画像一覧を取得
+// コンポーネントマウント（DOM要素すなわちHTML構造の作成・配置）（描画前）直後に画像一覧を取得
 onMounted(() => {
   fetchImages()
 })
