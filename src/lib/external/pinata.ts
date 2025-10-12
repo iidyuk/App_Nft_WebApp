@@ -44,11 +44,12 @@ export const checkPinataConnection = async () => {
 } 
 
 // JSONメタデータをPinataにアップロードする関数
-export const uploadMetadataToPinata = async (metadata: any) => {
+export const uploadMetadataToPinata = async (metadata: any, fileName?: string) => {
   try {
+
+    // 環境変数の取得・チェック
     const config = useRuntimeConfig()
     const pinataJWTKey = config.public.pinataJWTKey
-    
     if (!pinataJWTKey) {
       return {
         success: false,
@@ -57,25 +58,37 @@ export const uploadMetadataToPinata = async (metadata: any) => {
       }
     }
 
+    // Pinataへのリクエストボディを生成
+    const now = new Date()
+    const timestamp = now.toISOString().slice(0, 16).replace('T', '-').replace(':', '')
+    const defaultName = `NFT Metadata-${timestamp}`
+    const requestBody = {
+      pinataContent: metadata,
+      pinataMetadata: {
+        name: fileName || metadata.name || defaultName
+      }
+    }
+
+    // Pinataへのリクエストを送信
     const response = await fetch('https://api.pinata.cloud/pinning/pinJSONToIPFS', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${pinataJWTKey}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(metadata)
+      body: JSON.stringify(requestBody)
     })
-
+    // エラーハンドリング
     if (!response.ok) {
       const errorData = await response.json()
       throw new Error(`HTTP ${response.status}: ${response.statusText} - ${JSON.stringify(errorData)}`)
     }
 
-    const result = await response.json()
+    const result = await response.json()  // レスポンスデータ
     
     return {
       success: true,
-      message: 'JSONメタデータアップロード成功',
+      message: 'metadata uploaded to Pinata successfully',
       hash: result.IpfsHash,
       url: `https://gateway.pinata.cloud/ipfs/${result.IpfsHash}`
     }
@@ -83,8 +96,8 @@ export const uploadMetadataToPinata = async (metadata: any) => {
     console.error('Pinata JSONアップロードエラー:', error)
     return {
       success: false,
-      message: 'JSONメタデータアップロード失敗',
+      message: 'metadata upload to Pinata failed',
       error: error instanceof Error ? error.message : String(error)
     }
   }
-} 
+}

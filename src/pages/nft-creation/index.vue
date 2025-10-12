@@ -17,7 +17,7 @@
       </div>
     </div>
 
-    <!-- Step 2: メタデータアップロードコンポーネント -->
+    <!-- Step 2: メタデータアップロードのコンポーネント -->
     <MetadataUploader 
       v-if="uploadedImageInfo"
       :uploaded-image-info="uploadedImageInfo"
@@ -47,35 +47,36 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import MetadataUploader from './components/MetadataUploader.vue'
-import NFTMinter from './components/NFTMinter.vue'
 
-// クエリパラメータから画像情報を取得
-const route = useRoute()
+  import { ref, onMounted } from 'vue'
+  import MetadataUploader from './components/MetadataUploader.vue'
+  import NFTMinter from './components/NFTMinter.vue'
 
-const uploadedImageInfo = ref<{ url: string; fileName: string } | null>(null)
-const metadataUploadResult = ref<any>(null)
+  // クエリパラメータから画像情報を取得
+  const route = useRoute()
 
-// メタデータアップロード完了時の処理
-const handleMetadataUploaded = (result: any) => {
-  metadataUploadResult.value = result
-  console.log('メタデータアップロード結果:', result)
-}
+  const uploadedImageInfo = ref<{ url: string; fileName: string } | null>(null)  // 画像情報
+  const metadataUploadResult = ref<any>(null)
 
-// ページマウント時にクエリパラメータから画像情報を復元
-onMounted(() => {
-  const imageUrl = route.query.imageUrl as string
-  const fileName = route.query.fileName as string
-  
-  if (imageUrl && fileName) {
-    uploadedImageInfo.value = {
-      url: decodeURIComponent(imageUrl),
-      fileName: decodeURIComponent(fileName)
-    }
-  } else {
-    // 画像情報がない場合はaboutページにリダイレクト
-    navigateTo('/about')
+  // メタデータアップロード完了時の処理
+  const handleMetadataUploaded = (result: any) => {
+    metadataUploadResult.value = result
+    console.log('メタデータアップロード結果:', result)
   }
-})
+
+  // ページマウント時にクエリパラメータから画像情報を復元
+  onMounted(() => {
+    const imageUrl = route.query.imageUrl as string
+    const fileName = route.query.fileName as string
+    
+    if (imageUrl && fileName) {
+      uploadedImageInfo.value = {
+        url: decodeURIComponent(imageUrl),
+        fileName: decodeURIComponent(fileName)
+      }
+    } else {
+      // 画像情報がない場合はaboutページにリダイレクト
+      navigateTo('/about')
+    }
+  })
 </script>
