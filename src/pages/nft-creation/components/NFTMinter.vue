@@ -18,7 +18,7 @@
 <script setup lang="ts">
 import { ref, defineProps } from 'vue'
 import { ethers } from 'ethers'
-import { MyNFT_ABI } from '~/lib/MyNFT_ABI'
+import { MyNFT_ABI } from '~/lib/contracts/MyNFT_ABI'
 
 const props = defineProps({
   metadataUrl: {

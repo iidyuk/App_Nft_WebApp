@@ -78,7 +78,7 @@
 </template>
 
 <script setup lang="ts">
-import { checkPinataConnection, uploadMetadataToPinata } from '~/lib/pinata'
+import { checkPinataConnection, uploadMetadataToPinata } from '~/lib/external/pinata'
 
 // リアクティブ変数
 const isTesting = ref(false)

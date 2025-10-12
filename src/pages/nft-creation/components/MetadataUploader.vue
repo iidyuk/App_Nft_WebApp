@@ -40,7 +40,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, defineProps, defineEmits } from 'vue'
-import { uploadMetadataToPinata } from '~/lib/pinata'
+import { uploadMetadataToPinata } from '~/lib/external/pinata'
 
 interface UploadedImageInfo {
   url: string
