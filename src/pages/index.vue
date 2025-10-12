@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-lg mx-auto mt-20 p-8 bg-white rounded-lg shadow text-center">
+  <div class="max-w-lg mx-auto mt-20 p-8 text-center">
     <h1 class="text-3xl font-bold text-green-600 mb-4">nft</h1>
     <p class="mb-6 text-gray-700">Let's make NFT from jpg/jpeg file.</p>
     <div class="space-y-4">

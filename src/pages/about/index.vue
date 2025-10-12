@@ -47,40 +47,40 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import ImageSelector from './components/ImageSelector.vue'
+  import { ref } from 'vue'
+  import ImageSelector from './components/ImageSelector.vue'
 
-// ref() 変数の定義
-const selectedFile = ref<File | null>(null)  // 画像ファイル
-const selectedImageUrl = ref<string>('')  // 画像の一時的なURL
-const uploadedImageInfo = ref<{ url: string; fileName: string } | null>(null)  // 画像のURL(supabase)
+  // ref() 変数の定義
+  const selectedFile = ref<File | null>(null)  // 画像ファイル
+  const selectedImageUrl = ref<string>('')  // 画像の一時的なURL
+  const uploadedImageInfo = ref<{ url: string; fileName: string } | null>(null)  // 画像のURL(supabase)
 
-// ステップ情報の定義
-const steps = ref([
-  { number: 1, title: '画像アップロード', isActive: true },
-  { number: 2, title: 'メタデータ作成', isActive: false },
-  { number: 3, title: 'NFT発行', isActive: false }
-])
+  // ステップ情報の定義
+  const steps = ref([
+    { number: 1, title: '画像アップロード', isActive: true },
+    { number: 2, title: 'メタデータ作成', isActive: false },
+    { number: 3, title: 'NFT発行', isActive: false }
+  ])
 
-//// 関数定義
-// 画像選択時の処理
-const handleImageSelected = (file: File, imageUrl: string) => {
-  selectedFile.value = file
-  selectedImageUrl.value = imageUrl
-  console.log('選択されたファイル:', file.name)
-  console.log('ファイルサイズ:', file.size, 'bytes')
-}
+  //// 関数定義
+  // 画像選択時の処理
+  const handleImageSelected = (file: File, imageUrl: string) => {
+    selectedFile.value = file
+    selectedImageUrl.value = imageUrl
+    console.log('選択されたファイル:', file.name)
+    console.log('ファイルサイズ:', file.size, 'bytes')
+  }
 
-// 画像アップロード完了時の処理
-const handleImageUploaded = (url: string, fileName: string) => {
-  uploadedImageInfo.value = { url, fileName }  // アップロード済みの画像情報
-  console.log('画像アップロード完了:', fileName)
-  console.log('画像アップロードURL:', url)
-}
+  // 画像アップロード完了時の処理
+  const handleImageUploaded = (url: string, fileName: string) => {
+    uploadedImageInfo.value = { url, fileName }  // アップロード済みの画像情報
+    console.log('画像アップロード完了:', fileName)
+    console.log('画像アップロードURL:', url)
+  }
 
-// 環境変数のテスト
-// const config = useRuntimeConfig()
-// console.log(' runtimeConfig.public ')
-// console.log('supabaseUrl:', config.public.supabaseUrl)
-// console.log('supabaseAnonKey:', config.public.supabaseAnonKey)
+  // 環境変数のテスト
+  // const config = useRuntimeConfig()
+  // console.log(' runtimeConfig.public ')
+  // console.log('supabaseUrl:', config.public.supabaseUrl)
+  // console.log('supabaseAnonKey:', config.public.supabaseAnonKey)
 </script>

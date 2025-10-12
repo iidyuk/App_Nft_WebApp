@@ -66,112 +66,112 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { createClient } from '@supabase/supabase-js'
+  import { ref, onMounted } from 'vue'
+  import { createClient } from '@supabase/supabase-js'
 
-// 型定義
-interface ImageFile {
-  name: string
-  url: string
-  updated_at: string
-  created_at: string
-  metadata?: {
-    size: number
-    mimetype: string
+  // 型定義
+  interface ImageFile {
+    name: string
+    url: string
+    updated_at: string
+    created_at: string
+    metadata?: {
+      size: number
+      mimetype: string
+    }
   }
-}
 
-// リアクティブ変数
-const images = ref<ImageFile[]>([])
-const isLoading = ref(false)
-const error = ref(false)
-const errorMessage = ref<string>('')
+  // リアクティブ変数
+  const images = ref<ImageFile[]>([])
+  const isLoading = ref(false)
+  const error = ref(false)
+  const errorMessage = ref<string>('')
 
-// Supabaseクライアントの初期化（接続設定）
-const config = useRuntimeConfig()  // Nuxt.jsの設定取得関数
-const supabase = createClient(
-  config.public.supabaseUrl,
-  config.public.supabaseAnonKey
-)
+  // Supabaseクライアントの初期化（接続設定）
+  const config = useRuntimeConfig()  // Nuxt.jsの設定取得関数
+  const supabase = createClient(
+    config.public.supabaseUrl,
+    config.public.supabaseAnonKey
+  )
 
-// 画像一覧を取得する関数
-const fetchImages = async () => {
-  isLoading.value = true
-  error.value = false
-  errorMessage.value = ''
-  
-  try {
-    console.log('画像一覧取得開始...')
+  // 画像一覧を取得する関数
+  const fetchImages = async () => {
+    isLoading.value = true
+    error.value = false
+    errorMessage.value = ''
     
-    // SupabaseのStorage-imagesバケット-uploadsフォルダからファイル一覧を取得
-    const { data: files, error: fetchError } = await supabase
-      .storage
-      .from('images')
-      .list('uploads', { 
-        limit: 100,
-        sortBy: { column: 'created_at', order: 'desc' }
-      })
-
-    if (fetchError) {
-      console.error('ファイル一覧取得エラー:', fetchError)
-      throw new Error(`ファイル一覧の取得に失敗しました: ${fetchError.message}`)
-    }
-
-    if (!files || files.length === 0) {
-      console.log('ファイルが見つかりませんでした')
-      images.value = []
-      return
-    }
-
-    console.log(`取得したファイル数: ${files.length}`)
-    console.log('ファイル一覧:', files.map(f => f.name))
-
-    // JPG/JPEGファイルのみをフィルタリング
-    const imageFiles = files.filter(file => {
-      const extension = file.name.split('.').at(-1)?.toLowerCase()
-      return extension === 'jpg' || extension === 'jpeg' || extension === 'png'
-    })
-
-    console.log(`画像ファイル数: ${imageFiles.length}`)
-
-    // 各ファイルのパブリックURLを生成
-    images.value = imageFiles.map(file => {
-      const filePath = `uploads/${file.name}`
-      const { data: urlData } = supabase
+    try {
+      console.log('画像一覧取得開始...')
+      
+      // SupabaseのStorage-imagesバケット-uploadsフォルダからファイル一覧を取得
+      const { data: files, error: fetchError } = await supabase
         .storage
         .from('images')
-        .getPublicUrl(filePath)
+        .list('uploads', { 
+          limit: 100,
+          sortBy: { column: 'created_at', order: 'desc' }
+        })
 
-      console.log(`Generated URL for ${file.name}:`, urlData.publicUrl)
+      if (fetchError) {
+        console.error('ファイル一覧取得エラー:', fetchError)
+        throw new Error(`ファイル一覧の取得に失敗しました: ${fetchError.message}`)
+      }
 
-      return {
-        name: file.name,
-        url: urlData.publicUrl,
-        updated_at: file.updated_at,
-        created_at: file.created_at,
-        metadata: file.metadata
-      } as ImageFile
-    })
+      if (!files || files.length === 0) {
+        console.log('ファイルが見つかりませんでした')
+        images.value = []
+        return
+      }
 
-    console.log(`表示する画像数: ${images.value.length}`)
+      console.log(`取得したファイル数: ${files.length}`)
+      console.log('ファイル一覧:', files.map(f => f.name))
 
-  } catch (err) {
-    error.value = true
-    errorMessage.value = err instanceof Error ? err.message : '予期しないエラーが発生しました'
-    console.error('画像一覧取得エラー:', err)
-  } finally {
-    isLoading.value = false
+      // JPG/JPEGファイルのみをフィルタリング
+      const imageFiles = files.filter(file => {
+        const extension = file.name.split('.').at(-1)?.toLowerCase()
+        return extension === 'jpg' || extension === 'jpeg' || extension === 'png'
+      })
+
+      console.log(`画像ファイル数: ${imageFiles.length}`)
+
+      // 各ファイルのパブリックURLを生成
+      images.value = imageFiles.map(file => {
+        const filePath = `uploads/${file.name}`
+        const { data: urlData } = supabase
+          .storage
+          .from('images')
+          .getPublicUrl(filePath)
+
+        console.log(`Generated URL for ${file.name}:`, urlData.publicUrl)
+
+        return {
+          name: file.name,
+          url: urlData.publicUrl,
+          updated_at: file.updated_at,
+          created_at: file.created_at,
+          metadata: file.metadata
+        } as ImageFile
+      })
+
+      console.log(`表示する画像数: ${images.value.length}`)
+
+    } catch (err) {
+      error.value = true
+      errorMessage.value = err instanceof Error ? err.message : '予期しないエラーが発生しました'
+      console.error('画像一覧取得エラー:', err)
+    } finally {
+      isLoading.value = false
+    }
   }
-}
 
-// 画像読み込みエラーの処理
-const handleImageError = (event: Event) => {
-  const img = event.target as HTMLImageElement
-  img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect width="200" height="200" fill="%23f3f4f6"/><text x="100" y="100" text-anchor="middle" dy=".3em" fill="%236b7280" font-family="Arial, sans-serif" font-size="14">画像を読み込めません</text></svg>'
-}
+  // 画像読み込みエラーの処理
+  const handleImageError = (event: Event) => {
+    const img = event.target as HTMLImageElement
+    img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect width="200" height="200" fill="%23f3f4f6"/><text x="100" y="100" text-anchor="middle" dy=".3em" fill="%236b7280" font-family="Arial, sans-serif" font-size="14">画像を読み込めません</text></svg>'
+  }
 
-// コンポーネントマウント（DOM要素すなわちHTML構造の作成・配置）（描画前）直後に画像一覧を取得
-onMounted(() => {
-  fetchImages()
-})
+  // コンポーネントマウント（DOM要素すなわちHTML構造の作成・配置）（描画前）直後に画像一覧を取得
+  onMounted(() => {
+    fetchImages()
+  })
 </script>

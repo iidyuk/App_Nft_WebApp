@@ -74,114 +74,114 @@
 </template>
 
 <script setup lang="ts">
-// 画像アップロード機能をインポート
-const { 
-  isUploading,
-  uploadError,
-  // uploadProgress,
-  // uploadedImageUrl,
-  uploadImage,
-  resetUploadState
-} = useSupabaseUpload()
+  // 画像アップロード機能をインポート
+  const { 
+    isUploading,
+    uploadError,
+    // uploadProgress,
+    // uploadedImageUrl,
+    uploadImage,
+    resetUploadState
+  } = useSupabaseUpload()
 
-// 画像選択関連のリアクティブ変数
-const selectedImage = ref<string | null>(null)
-const selectedFileName = ref<string>('')
-const selectedFile = ref<File | null>(null)
+  // 画像選択関連のリアクティブ変数
+  const selectedImage = ref<string | null>(null)
+  const selectedFileName = ref<string>('')
+  const selectedFile = ref<File | null>(null)
 
-//props（親コンポーネントから渡されるデータ）の設定
-const props = defineProps<{isUploaded: boolean}>()
-const isUploaded = computed(() => props.isUploaded || false)
+  //props（親コンポーネントから渡されるデータ）の設定
+  const props = defineProps<{isUploaded: boolean}>()
+  const isUploaded = computed(() => props.isUploaded || false)
 
-// emit（親コンポーネントに渡すデータ）の設定
-const emit = defineEmits<{
-  imageSelected: [file: File, imageUrl: string]
-  imageUploaded: [url: string, fileName: string]
-}>()
+  // emit（親コンポーネントに渡すデータ）の設定
+  const emit = defineEmits<{
+    imageSelected: [file: File, imageUrl: string]
+    imageUploaded: [url: string, fileName: string]
+  }>()
 
-// 画像選択処理
-const handleImageSelect = (event: Event) => {
+  // 画像選択処理
+  const handleImageSelect = (event: Event) => {
 
-  const target = event.target as HTMLInputElement
-  const file = target.files?.[0]
-  
-  if (file) {
-
-    // ファイル拡張子チェック
-    const fileExtension = file.name.split('.').at(-1)?.toLowerCase()
-    if (fileExtension !== 'jpg' && fileExtension !== 'jpeg' && fileExtension !== 'png') {
-      alert('jpg/jpeg/pngファイルのみ選択可能です')
-      target.value = '' // ファイル選択をリセット
-      return
-    }
+    const target = event.target as HTMLInputElement
+    const file = target.files?.[0]
     
-    // ファイルを保存
-    selectedFile.value = file
-    selectedFileName.value = file.name
-    
-    // ファイルをURLに変換してプレビュー表示
-    const reader = new FileReader()
-    reader.onload = (e) => {  // onloadイベントハンドラー設定
-      const imageUrl = e.target?.result as string
-        // result は string | ArrayBuffer | null 型だが、readAsDataURL の場合は文字列になるので as string で型を指定
-          // const fileReader = e.target as FileReader
-          // const base64DataUrl = fileReader.result .. string
-          // const imageUrl = base64DataUrl as string
+    if (file) {
 
-      selectedImage.value = imageUrl
+      // ファイル拡張子チェック
+      const fileExtension = file.name.split('.').at(-1)?.toLowerCase()
+      if (fileExtension !== 'jpg' && fileExtension !== 'jpeg' && fileExtension !== 'png') {
+        alert('jpg/jpeg/pngファイルのみ選択可能です')
+        target.value = '' // ファイル選択をリセット
+        return
+      }
       
-      emit('imageSelected', file, imageUrl)  // 親コンポーネントに選択されたファイル情報を渡す
+      // ファイルを保存
+      selectedFile.value = file
+      selectedFileName.value = file.name
+      
+      // ファイルをURLに変換してプレビュー表示
+      const reader = new FileReader()
+      reader.onload = (e) => {  // onloadイベントハンドラー設定
+        const imageUrl = e.target?.result as string
+          // result は string | ArrayBuffer | null 型だが、readAsDataURL の場合は文字列になるので as string で型を指定
+            // const fileReader = e.target as FileReader
+            // const base64DataUrl = fileReader.result .. string
+            // const imageUrl = base64DataUrl as string
+
+        selectedImage.value = imageUrl
+        
+        emit('imageSelected', file, imageUrl)  // 親コンポーネントに選択されたファイル情報を渡す
+      }
+
+      reader.readAsDataURL(file)  // ファイルをBase64エンコードされたデータURLとして読み込み
+        // 形式 data:image/jpeg;base64,/9j/4AAQ...
+          // data: - データURLのプレフィックス, image/jpeg - MIMEタイプ, base64, - エンコーディング方式, /9j/4AAQ... - Base64エンコードされたデータ
+
+      resetUploadState()  // 前回のアップロード状態をリセット
+
+      // 処理のフロー
+        // 1.ユーザーがファイルを選択  2.FileReaderオブジェクトを作成  3.onloadイベントハンドラーを設定
+        // 4.readAsDataURL(file)で読み込み開始
+        // 5.読み込み完了時（reader.readAsDataURL）にreader.onloadが発火
+        // 6.e.target.resultにBase64データURLが格納される
+        // 7.selectedImage.valueにデータURLを設定  8.emitで親コンポーネントに通知
+
     }
-
-    reader.readAsDataURL(file)  // ファイルをBase64エンコードされたデータURLとして読み込み
-      // 形式 data:image/jpeg;base64,/9j/4AAQ...
-        // data: - データURLのプレフィックス, image/jpeg - MIMEタイプ, base64, - エンコーディング方式, /9j/4AAQ... - Base64エンコードされたデータ
-
-    resetUploadState()  // 前回のアップロード状態をリセット
-
-    // 処理のフロー
-      // 1.ユーザーがファイルを選択  2.FileReaderオブジェクトを作成  3.onloadイベントハンドラーを設定
-      // 4.readAsDataURL(file)で読み込み開始
-      // 5.読み込み完了時（reader.readAsDataURL）にreader.onloadが発火
-      // 6.e.target.resultにBase64データURLが格納される
-      // 7.selectedImage.valueにデータURLを設定  8.emitで親コンポーネントに通知
-
   }
-}
 
-// アップロード処理
-const handleUpload = async () => {
-  if (!selectedFile.value) return
-  
-  const result = await uploadImage(selectedFile.value, 'images')  // imagesバケットを指定して画像データをアップロード
-  
-  if (result.success && result.url && result.fileName) {
-    emit('imageUploaded', result.url, result.fileName)  // 親コンポーネントにアップロード完了を通知
+  // アップロード処理
+  const handleUpload = async () => {
+    if (!selectedFile.value) return
+    
+    const result = await uploadImage(selectedFile.value, 'images')  // imagesバケットを指定して画像データをアップロード
+    
+    if (result.success && result.url && result.fileName) {
+      emit('imageUploaded', result.url, result.fileName)  // 親コンポーネントにアップロード完了を通知
+    }
   }
-}
 
-// URLをクリップボードにコピー
-// const copyUrl = async () => {
-//   if (uploadedImageUrl.value) {
-//     try {
-//       await navigator.clipboard.writeText(uploadedImageUrl.value)
-//       alert('URLをクリップボードにコピーしました')
-//     } catch (error) {
-//       console.error('URLのコピーに失敗しました:', error)
-//     }
-//   }
-// }
-
-// 外部からアクセス可能なメソッドを公開
-// defineExpose({
-  // selectedImage,
-  // selectedFileName,
-  // uploadedImageUrl,
-  // clearSelection: () => {
-  //   selectedImage.value = null
-  //   selectedFileName.value = ''
-  //   selectedFile.value = null
-  //   resetUploadState()
+  // URLをクリップボードにコピー
+  // const copyUrl = async () => {
+  //   if (uploadedImageUrl.value) {
+  //     try {
+  //       await navigator.clipboard.writeText(uploadedImageUrl.value)
+  //       alert('URLをクリップボードにコピーしました')
+  //     } catch (error) {
+  //       console.error('URLのコピーに失敗しました:', error)
+  //     }
+  //   }
   // }
-// })
+
+  // 外部からアクセス可能なメソッドを公開
+  // defineExpose({
+    // selectedImage,
+    // selectedFileName,
+    // uploadedImageUrl,
+    // clearSelection: () => {
+    //   selectedImage.value = null
+    //   selectedFileName.value = ''
+    //   selectedFile.value = null
+    //   resetUploadState()
+    // }
+  // })
 </script> 
