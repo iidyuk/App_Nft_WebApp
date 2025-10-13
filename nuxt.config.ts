@@ -28,5 +28,22 @@ export default defineNuxtConfig({
     '@nuxtjs/tailwindcss',
     '@nuxt/icon',
     '@nuxt/fonts'
-  ]
+  ],
+
+  app: {
+    head: {
+      charset: 'utf-16',
+      viewport: 'width=device-width',
+      title: 'nft app',
+      link: [
+        { rel: 'icon', type: 'image/png', href: '/favicon.png' },
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+        { rel: 'shortcut icon', type: 'image/x-icon', href: '/favicon.ico' }
+      ],
+      htmlAttrs: {
+        lang: 'ja',
+        prefix: 'og: https://ogp.me/ns#'
+      },
+    }
+  },
 })

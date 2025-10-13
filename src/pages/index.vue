@@ -7,7 +7,7 @@
       <br>
       <NuxtLink to="/list" class="inline-block bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded transition">List</NuxtLink>
       <br>
-      <NuxtLink to="/pinata-test" class="inline-block bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded transition">Pinata API Test</NuxtLink>
+      <NuxtLink to="/pinata-test" class="inline-block bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded transition">Pinata API Test..</NuxtLink>
     </div>
   </div>
 </template>
