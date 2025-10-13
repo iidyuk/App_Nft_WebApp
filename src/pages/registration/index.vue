@@ -1,6 +1,6 @@
 <template>
   <div class="max-w-4xl mx-auto mt-8 p-8 text-center">
-    <h1 class="text-3xl font-bold mb-6">画像アップロード</h1>
+    <h1 class="text-3xl font-bold mb-6">Registration</h1>
     
     <!-- ステップ表示 -->
     <div class="mb-4 flex justify-center items-center">

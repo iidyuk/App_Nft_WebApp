@@ -2,64 +2,25 @@
   <div class="max-w-6xl mx-auto">
     <h1 class="text-3xl font-bold text-center my-10">List</h1>
 
-    <!-- ローディング状態 -->
-    <div v-if="isLoading" class="text-center py-8">
-      <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      <p class="mt-2 text-gray-600">画像を読み込み中...</p>
-    </div>
-
-    <!-- エラー状態 -->
-    <div v-else-if="error" class="text-center py-8">
-      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-        <p class="font-bold">エラーが発生しました</p>
-        <p class="text-sm">{{ errorMessage }}</p>
-      </div>
-      <button 
-        @click="fetchImages" 
-        class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded transition"
-      >
-        再試行
-      </button>
-    </div>
-
-    <!-- データがない場合 -->
-    <div v-else-if="images.length === 0 && !isLoading" class="text-center py-8">
-      <p class="text-gray-600 text-lg">no data</p>
-    </div>
-
-    <!-- 画像一覧 -->
-    <div v-else>
-      <div class="grid gap-6" style="grid-template-columns: repeat(auto-fit, minmax(200px, 300px)); justify-content: center;">
-        <div 
-          v-for="image in paginatedImages" 
-          :key="image.url"
-          class=" rounded-lg overflow-hidden hover:shadow-lg hover:cursor-pointer transition-shadow"
-          style="width: 100%; min-width: 80px; max-width: 240px;"
-        >
-          <!-- 画像 -->
-          <div class="w-full bg-gray-200 flex items-center justify-center" style="aspect-ratio: auto;">
-            <p class="">
-              <img 
-                :src="image.url" 
-                :alt="image.name"
-                class="w-full h-auto object-cover rounded-t"
-                @error="handleImageError"
-              />
-            </p>
-          </div>      
-        </div>
-      </div>
-
-      <!-- ページネーション -->
-      <Pagination
-        :current-page="currentPage"
-        :total-pages="totalPages"
-        :total-items="images.length"
-        :items-per-page="itemsPerPage"
-        @page-change="handlePageChange"
-      />
-    </div>
-
+    <!-- 画像グリッド -->
+    <ImageGrid
+      :is-loading="isLoading"
+      :error="error"
+      :error-message="errorMessage"
+      :images="images"
+      :paginated-images="paginatedImages"
+      @retry="fetchImages"
+    />
+    
+    <!-- ページネーション -->
+    <Pagination
+      :current-page="currentPage"
+      :total-pages="totalPages"
+      :total-items="images.length"
+      :items-per-page="itemsPerPage"
+      @page-change="handlePageChange"
+    />
+    
     <!-- トップページへのリンク -->
     <div class="text-center my-10">
       <NuxtLink 
@@ -73,9 +34,10 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, onMounted, computed } from 'vue'
+  import { ref, onMounted, computed, onUnmounted, watch } from 'vue'
   import { createClient } from '@supabase/supabase-js'
   import Pagination from './components/Pagination.vue'
+  import ImageGrid from './components/ImageGrid.vue'
 
   // 型定義
   interface ImageFile {
@@ -97,7 +59,12 @@
   
   // ページネーション用の変数
   const currentPage = ref(1)
-  const itemsPerPage = 6
+  const windowWidth = ref(0)
+  
+  // レスポンシブ対応のitemsPerPage
+  const itemsPerPage = computed(() => {
+    return windowWidth.value <= 500 ? 5 : 10
+  })
 
   // Supabaseクライアントの初期化（接続設定）
   const config = useRuntimeConfig()  // Nuxt.jsの設定取得関数
@@ -108,13 +75,31 @@
 
   // ページネーション用のcomputed properties
   const totalPages = computed(() => {
-    return Math.ceil(images.value.length / itemsPerPage)
+    return Math.ceil(images.value.length / itemsPerPage.value)
   })
 
   const paginatedImages = computed(() => {
-    const startIndex = (currentPage.value - 1) * itemsPerPage
-    const endIndex = startIndex + itemsPerPage
+    const startIndex = (currentPage.value - 1) * itemsPerPage.value
+    const endIndex = startIndex + itemsPerPage.value
     return images.value.slice(startIndex, endIndex)
+  })
+
+  // 画面幅の更新関数
+  const updateWindowWidth = () => {
+    windowWidth.value = window.innerWidth
+  }
+
+  // itemsPerPageが変更されたときに現在のページを調整
+  const adjustCurrentPage = () => {
+    const newTotalPages = Math.ceil(images.value.length / itemsPerPage.value)
+    if (currentPage.value > newTotalPages && newTotalPages > 0) {
+      currentPage.value = newTotalPages
+    }
+  }
+
+  // itemsPerPageの変更を監視してページを調整
+  watch(itemsPerPage, () => {
+    adjustCurrentPage()
   })
 
 
@@ -188,12 +173,6 @@
     }
   }
 
-  // 画像読み込みエラーの処理
-  const handleImageError = (event: Event) => {
-    const img = event.target as HTMLImageElement
-    img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect width="200" height="200" fill="%23f3f4f6"/><text x="100" y="100" text-anchor="middle" dy=".3em" fill="%236b7280" font-family="Arial, sans-serif" font-size="14">画像を読み込めません</text></svg>'
-  }
-
   // ページネーション用のメソッド
   const handlePageChange = (page: number) => {
     currentPage.value = page
@@ -201,6 +180,16 @@
 
   // コンポーネントマウント（DOM要素すなわちHTML構造の作成・配置）（描画前）直後に画像一覧を取得
   onMounted(() => {
+    // 初期画面幅を設定
+    updateWindowWidth()
+    // リサイズイベントリスナーを追加
+    window.addEventListener('resize', updateWindowWidth)
+    // 画像一覧を取得
     fetchImages()
+  })
+
+  // コンポーネントアンマウント時にイベントリスナーを削除
+  onUnmounted(() => {
+    window.removeEventListener('resize', updateWindowWidth)
   })
 </script>
