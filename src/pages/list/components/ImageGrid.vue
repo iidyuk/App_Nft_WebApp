@@ -47,6 +47,7 @@
         v-for="image in paginatedImages" 
         :key="image.url"
         class="rounded-lg overflow-hidden hover:shadow-lg hover:cursor-pointer transition-shadow w-full max-w-xs"
+        @click="openPopup(image)"
       >
         <!-- 画像 -->
         <div class="w-full bg-gray-200 flex items-center justify-center">
@@ -56,13 +57,25 @@
             class="w-full h-auto object-cover rounded-t"
             @error="handleImageError"
           />
-        </div>      
+        </div>
       </div>
     </div>
   </div>
+
+  <!-- 画像モーダル -->
+  <ImageModal 
+    :is-visible="showPopup"
+    :image="selectedImage"
+    @close="closePopup"
+    @watch="handleWatch"
+    @list="handleList"
+    @register="handleRegister"
+  />
 </template>
 
 <script setup lang="ts">
+import ImageModal from './ImageModal.vue'
+
 // 型定義
 interface ImageFile {
   name: string
@@ -91,9 +104,40 @@ const emit = defineEmits<{
   'retry': []
 }>()
 
+// ポップアップの状態管理
+const showPopup = ref(false)
+const selectedImage = ref<ImageFile | null>(null)
+
 // Methods
 const handleImageError = (event: Event) => {
   const img = event.target as HTMLImageElement
   img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect width="200" height="200" fill="%23f3f4f6"/><text x="100" y="100" text-anchor="middle" dy=".3em" fill="%236b7280" font-family="Arial, sans-serif" font-size="14">画像を読み込めません</text></svg>'
+}
+
+// ポップアップ関連のメソッド
+const openPopup = (image: ImageFile) => {
+  selectedImage.value = image
+  showPopup.value = true
+}
+
+const closePopup = () => {
+  showPopup.value = false
+  selectedImage.value = null
+}
+
+// ボタンクリックハンドラー
+const handleWatch = (image: ImageFile) => {
+  console.log('Watch clicked for:', image.name)
+  // ここにWatch機能の実装を追加
+}
+
+const handleList = (image: ImageFile) => {
+  console.log('List clicked for:', image.name)
+  // ここにList機能の実装を追加
+}
+
+const handleRegister = (image: ImageFile) => {
+  console.log('Register clicked for:', image.name)
+  // ここにRegister機能の実装を追加
 }
 </script>
