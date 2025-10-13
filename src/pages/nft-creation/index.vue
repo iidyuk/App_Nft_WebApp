@@ -31,7 +31,7 @@
     <!-- ナビゲーションボタン -->
     <div class="mt-8 space-x-4">
       <NuxtLink 
-        to="/about" 
+        to="/registration" 
         class="inline-block bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded transition"
       >
         画像アップロードに戻る
@@ -49,8 +49,8 @@
 <script setup lang="ts">
 
   import { ref, onMounted } from 'vue'
-  import MetadataUploader from './components/MetadataUploader.vue'
-  import NFTMinter from './components/NFTMinter.vue'
+  // import MetadataUploader from './components/MetadataUploader.vue'
+  // import NFTMinter from './components/NFTMinter.vue'
 
   // クエリパラメータから画像情報を取得
   const route = useRoute()
@@ -76,7 +76,7 @@
       }
     } else {
       // 画像情報がない場合はaboutページにリダイレクト
-      navigateTo('/about')
+      navigateTo('/registration')
     }
   })
 </script>
