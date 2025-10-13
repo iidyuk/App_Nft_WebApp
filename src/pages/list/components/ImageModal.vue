@@ -26,49 +26,76 @@
       </div>
 
       <!-- メインコンテンツ -->
-      <div class="flex flex-col lg:flex-row">
-        <!-- 左側：画像 -->
-        <div class="lg:w-1/2 p-4">
-          <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden max-w-[200px] sm:max-w-[250px] md:max-w-[300px] lg:max-w-none mx-auto lg:mx-0">
+      <div class="relative">
+        <!-- 通常表示（左が画像、右がテキスト） -->
+        <div 
+          v-if="!isFullscreen"
+          class="flex flex-col lg:flex-row transition-all duration-300 ease-in-out"
+        >
+          <!-- 左側：画像 -->
+          <div class="lg:w-1/2 p-4">
+            <div 
+              class="aspect-square bg-gray-100 rounded-lg overflow-hidden max-w-[200px] sm:max-w-[250px] md:max-w-[300px] lg:max-w-none mx-auto lg:mx-0 cursor-pointer hover:opacity-90 transition-opacity"
+              @click="enterFullscreen"
+            >
+              <img 
+                v-if="image"
+                :src="image.url" 
+                :alt="image.name"
+                class="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+
+          <!-- 右側：テキスト情報 -->
+          <div class="lg:w-1/2 p-4 space-y-6">
+            <!-- Title -->
+            <div>
+              <h3 class="text-sm font-medium text-gray-500 mb-2">Title</h3>
+              <p class="text-lg font-semibold text-gray-900">{{ image?.name || 'No title' }}</p>
+            </div>
+
+            <!-- Description -->
+            <div>
+              <h3 class="text-sm font-medium text-gray-500 mb-2">Description</h3>
+              <p class="text-gray-700">{{ getDescription(image) }}</p>
+            </div>
+
+            <!-- Chain -->
+            <div>
+              <h3 class="text-sm font-medium text-gray-500 mb-2">Chain</h3>
+              <p class="text-gray-700">{{ getChain(image) }}</p>
+            </div>
+
+            <!-- Mint Date -->
+            <div>
+              <h3 class="text-sm font-medium text-gray-500 mb-2"> Date</h3>
+              <p class="text-gray-700">{{ getMintDate(image) }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- フルスクリーン表示（画像のみ） -->
+        <div 
+          v-if="isFullscreen"
+          class="p-2 transition-all duration-300 ease-in-out"
+        >
+          <div 
+            class="relative w-full h-[calc(90vh-120px)] flex items-center justify-center cursor-pointer"
+            @click="exitFullscreen"
+          >
             <img 
               v-if="image"
               :src="image.url" 
               :alt="image.name"
-              class="w-full h-full object-cover"
+              class="max-w-full max-h-full object-contain transition-all duration-300 ease-in-out"
             />
-          </div>
-        </div>
-
-        <!-- 右側：テキスト情報 -->
-        <div class="lg:w-1/2 p-4 space-y-6">
-          <!-- Title -->
-          <div>
-            <h3 class="text-sm font-medium text-gray-500 mb-2">Title</h3>
-            <p class="text-lg font-semibold text-gray-900">{{ image?.name || 'No title' }}</p>
-          </div>
-
-          <!-- Description -->
-          <div>
-            <h3 class="text-sm font-medium text-gray-500 mb-2">Description</h3>
-            <p class="text-gray-700">{{ getDescription(image) }}</p>
-          </div>
-
-          <!-- Chain -->
-          <div>
-            <h3 class="text-sm font-medium text-gray-500 mb-2">Chain</h3>
-            <p class="text-gray-700">{{ getChain(image) }}</p>
-          </div>
-
-          <!-- Mint Date -->
-          <div>
-            <h3 class="text-sm font-medium text-gray-500 mb-2"> Date</h3>
-            <p class="text-gray-700">{{ getMintDate(image) }}</p>
           </div>
         </div>
       </div>
 
-      <!-- フッター：ボタン -->
-      <div class="flex justify-end gap-3 p-4 border-t border-gray-200">
+      <!-- フッター：ボタン（通常表示時のみ） -->
+      <div v-if="!isFullscreen" class="flex justify-end gap-3 p-4 border-t border-gray-200">
         <button 
           @click="handleWatch"
           class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors"
@@ -121,9 +148,22 @@ const emit = defineEmits<{
   'register': [image: ImageFile]
 }>()
 
+// フルスクリーン表示の状態管理
+const isFullscreen = ref(false)
+
 // Methods
 const closeModal = () => {
+  isFullscreen.value = false // フルスクリーン状態をリセット
   emit('close')
+}
+
+// フルスクリーン機能
+const enterFullscreen = () => {
+  isFullscreen.value = true
+}
+
+const exitFullscreen = () => {
+  isFullscreen.value = false
 }
 
 // ボタンクリックハンドラー
