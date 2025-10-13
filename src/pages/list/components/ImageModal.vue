@@ -1,24 +1,14 @@
 <template>
   <!-- ポップアップモーダル -->
-  <div 
-    v-if="isVisible" 
-    class="fixed inset-0 z-50 flex items-center justify-center p-4"
-    @click="closeModal"
-  >
+  <div v-if="isVisible" class="fixed inset-0 z-50 flex items-center justify-center p-4" @click="closeModal">
     <!-- 背景オーバーレイ -->
     <div class="absolute inset-0 bg-gray-900 bg-opacity-95"></div>
     
     <!-- ポップアップコンテンツ -->
-    <div 
-      class="relative bg-white rounded-lg shadow-xl max-w-4xl w-full max-w-[720px] max-h-[90vh] overflow-y-auto"
-      @click.stop
-    >
+    <div lass="relative bg-white rounded-lg shadow-xl max-w-4xl w-full max-w-[720px] max-h-[90vh] overflow-y-auto" @click.stop>
       <!-- ヘッダー（閉じるボタン） -->
       <div class="flex justify-end p-4">
-        <button 
-          @click="closeModal"
-          class="text-gray-500 hover:text-gray-700 transition-colors"
-        >
+        <button @click="closeModal" class="text-gray-500 hover:text-gray-700 transition-colors">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
@@ -75,13 +65,10 @@
           </div>
         </div>
 
-        <!-- フルスクリーン表示（画像のみ） -->
-        <div 
-          v-if="isFullscreen"
-          class="p-2 transition-all duration-300 ease-in-out"
-        >
+        <!-- ポップアップウィンドウ 画像フルスクリーン表示 -->
+        <div v-if="isFullscreen" class="p-6 transition-all duration-300 ease-in-out">
           <div 
-            class="relative w-full h-[calc(90vh-120px)] flex items-center justify-center cursor-pointer"
+            class="relative w-full h-[calc(70vh-100px)] flex items-center justify-center cursor-pointer"
             @click="exitFullscreen"
           >
             <img 
@@ -94,23 +81,24 @@
         </div>
       </div>
 
-      <!-- フッター：ボタン（通常表示時のみ） -->
+      <!-- ボタン（通常表示時のみ） -->
       <div v-if="!isFullscreen" class="flex justify-end gap-3 p-4 border-t border-gray-200">
         <button 
-          @click="handleWatch"
+          @click="enterFullscreen"
           class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors"
         >
           Watch
         </button>
         <button 
-          @click="handleList"
+          @click="closeModal"
           class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors"
         >
           List
         </button>
         <button 
           @click="handleRegister"
-          class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors"
+          class="px-4 py-2 bg-gray-400 text-white rounded-lg transition-colors "
+          disabled
         >
           Register
         </button>
