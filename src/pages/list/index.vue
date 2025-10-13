@@ -1,6 +1,6 @@
 <template>
-  <div class="max-w-6xl mx-auto mt-20 p-8 bg-white rounded-lg shadow">
-    <h1 class="text-3xl font-bold text-blue-600 text-center">List</h1>
+  <div class="max-w-6xl mx-auto">
+    <h1 class="text-3xl font-bold text-center my-10">List</h1>
 
     <!-- ローディング状態 -->
     <div v-if="isLoading" class="text-center py-8">
@@ -29,17 +29,16 @@
 
     <!-- 画像一覧 -->
     <div v-else>
-
       <div class="grid gap-6" style="grid-template-columns: repeat(auto-fit, minmax(200px, 300px)); justify-content: center;">
         <div 
-          v-for="image in images" 
+          v-for="image in paginatedImages" 
           :key="image.url"
-          class="bg-gray-50 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow"
+          class=" rounded-lg overflow-hidden hover:shadow-lg hover:cursor-pointer transition-shadow"
           style="width: 100%; min-width: 80px; max-width: 240px;"
         >
           <!-- 画像 -->
           <div class="w-full bg-gray-200 flex items-center justify-center" style="aspect-ratio: auto;">
-            <p class="mb-2">
+            <p class="">
               <img 
                 :src="image.url" 
                 :alt="image.name"
@@ -47,14 +46,22 @@
                 @error="handleImageError"
               />
             </p>
-          </div>
-          
+          </div>      
         </div>
       </div>
+
+      <!-- ページネーション -->
+      <Pagination
+        :current-page="currentPage"
+        :total-pages="totalPages"
+        :total-items="images.length"
+        :items-per-page="itemsPerPage"
+        @page-change="handlePageChange"
+      />
     </div>
 
     <!-- トップページへのリンク -->
-    <div class="text-center mt-8">
+    <div class="text-center my-10">
       <NuxtLink 
         to="/" 
         class="inline-block bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded transition"
@@ -66,8 +73,9 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, onMounted } from 'vue'
+  import { ref, onMounted, computed } from 'vue'
   import { createClient } from '@supabase/supabase-js'
+  import Pagination from './components/Pagination.vue'
 
   // 型定義
   interface ImageFile {
@@ -86,6 +94,10 @@
   const isLoading = ref(false)
   const error = ref(false)
   const errorMessage = ref<string>('')
+  
+  // ページネーション用の変数
+  const currentPage = ref(1)
+  const itemsPerPage = 6
 
   // Supabaseクライアントの初期化（接続設定）
   const config = useRuntimeConfig()  // Nuxt.jsの設定取得関数
@@ -93,6 +105,18 @@
     config.public.supabaseUrl,
     config.public.supabaseAnonKey
   )
+
+  // ページネーション用のcomputed properties
+  const totalPages = computed(() => {
+    return Math.ceil(images.value.length / itemsPerPage)
+  })
+
+  const paginatedImages = computed(() => {
+    const startIndex = (currentPage.value - 1) * itemsPerPage
+    const endIndex = startIndex + itemsPerPage
+    return images.value.slice(startIndex, endIndex)
+  })
+
 
   // 画像一覧を取得する関数
   const fetchImages = async () => {
@@ -168,6 +192,11 @@
   const handleImageError = (event: Event) => {
     const img = event.target as HTMLImageElement
     img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect width="200" height="200" fill="%23f3f4f6"/><text x="100" y="100" text-anchor="middle" dy=".3em" fill="%236b7280" font-family="Arial, sans-serif" font-size="14">画像を読み込めません</text></svg>'
+  }
+
+  // ページネーション用のメソッド
+  const handlePageChange = (page: number) => {
+    currentPage.value = page
   }
 
   // コンポーネントマウント（DOM要素すなわちHTML構造の作成・配置）（描画前）直後に画像一覧を取得
