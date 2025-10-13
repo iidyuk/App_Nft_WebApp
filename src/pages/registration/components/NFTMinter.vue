@@ -138,6 +138,7 @@
   })
 </script>
 
+
 <!-- Note
  
 [ Web3Provider ]
@@ -162,6 +163,5 @@
     MetaMask (window.ethereum)
         ↓
     Ethereumネットワーク
-
 
 -->

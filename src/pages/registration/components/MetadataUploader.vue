@@ -1,10 +1,10 @@
 <template>
   <!-- メタデータアップロード処理中の表示 -->
-  <div v-if="isUploading" class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-    <h3 class="text-lg font-medium text-yellow-800 mb-4">NFTメタデータ作成</h3>
+  <div v-if="isUploading" class="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+    <h3 class="text-lg font-medium text-green-800 mb-4">NFTメタデータ作成</h3>
     <div class="text-center">
-      <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-600 mb-2"></div>
-      <p class="text-yellow-700">メタデータをPINATAにアップロード中...</p>
+      <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mb-2"></div>
+      <p class="text-green-700">メタデータをPINATAにアップロード中...</p>
     </div>
   </div>
 

@@ -1,33 +1,48 @@
 <template>
   <div class="flex flex-col items-center gap-12">
     <!-- Supabaseアップロードボタン -->
-    <button
-      @click="handleUpload"
-      :disabled="isUploading || isUploaded"
-      class="disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-2 px-6 rounded transition"
-      :class="isUploaded ? 'bg-gray-400' : 'bg-green-500 hover:bg-green-600'"
-    >
-      {{ isUploaded ? 'Upload Complete' : (isUploading ? 'Uploading...' : 'Upload to Supabase') }}
-    </button>
+      <button
+        @click="handleUpload"
+        :disabled="isUploading || isUploaded"
+        class="group disabled:bg-gray-300 text-white font-semibold py-2 px-2 rounded transition relative overflow-hidden w-32 sm:w-40"
+        :class="isUploaded ? 'bg-gray-400' : 'bg-green-500 hover:bg-green-600'"
+      >
+        <span class="block transition-transform duration-300 group-hover:-translate-y-[150%]">
+          Upload Image
+        </span>
+        <span class="block absolute inset-0 flex items-center justify-center transition-transform duration-300 transform translate-y-[120%] group-hover:translate-y-0">
+          to Supabase
+        </span>
+      </button>
     
     <!-- Upload Metadataボタン -->
-    <button
-      @click="handleMetadataUpload"
-      :disabled="!isUploaded"
-      class="disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold py-2 px-6 rounded transition"
-      :class="isUploaded ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-gray-300'"
-    >
-      Upload Metadata
-    </button>
+     <button
+       @click="handleMetadataUpload"
+       :disabled="!isUploaded || isMetadataUploaded"
+       class="group disabled:bg-gray-300 text-white font-semibold py-2 px-2 rounded transition relative overflow-hidden w-32 sm:w-40"
+       :class="isMetadataUploaded ? 'bg-gray-400' : (isUploaded ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-300')"
+     >
+       <span class="block transition-transform duration-300 group-hover:-translate-y-[150%]">
+         Upload Metadata
+       </span>
+       <span class="block absolute inset-0 flex items-center justify-center transition-transform duration-300 transform translate-y-[120%] group-hover:translate-y-0">
+         to Pinata
+       </span>
+     </button>
     
     <!-- Create NFTボタン -->
     <button
       @click="handleCreateNFT"
-      :disabled="!isMetadataUploaded"
-      class="disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold py-2 px-6 rounded transition"
-      :class="isMetadataUploaded ? 'bg-purple-600 hover:bg-purple-700' : 'bg-gray-300'"
+      :disabled="!isMetadataUploaded || isNFTCreated"
+      class="group disabled:bg-gray-300 text-white font-semibold py-2 px-2 rounded transition relative overflow-hidden w-32 sm:w-40"
+      :class="isNFTCreated ? 'bg-gray-400' : (isMetadataUploaded ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-300')"
     >
-      Create NFT
+      <span class="block transition-transform duration-300 group-hover:-translate-y-[150%]">
+        Mint NFT
+      </span>
+      <span class="block absolute inset-0 flex items-center justify-center transition-transform duration-300 transform translate-y-[120%] group-hover:translate-y-0">
+        to Ethereum
+      </span>
     </button>
   </div>
 </template>
@@ -47,6 +62,7 @@
     selectedFile: File | null
     selectedFileName: string
     isMetadataUploaded?: boolean  // メタデータアップロード完了状態
+    isNFTCreated?: boolean  // NFT作成完了状態
   }>()
 
   // emit（親コンポーネントに渡すデータ）の設定
@@ -60,6 +76,7 @@
   // アップロード状態の計算プロパティ
   const isUploaded = computed(() => !!uploadedImageUrl.value)
   const isMetadataUploaded = computed(() => props.isMetadataUploaded || false)
+  const isNFTCreated = computed(() => props.isNFTCreated || false)
 
   // ステータスメッセージをemitする関数
   const emitStatusMessage = (message: string, type: 'success' | 'error' | 'info') => {

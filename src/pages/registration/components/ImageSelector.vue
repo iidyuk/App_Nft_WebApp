@@ -22,14 +22,14 @@
     </div>
 
     <!-- 選択された画像のプレビュー -->
-    <div v-if="selectedImage" class="mt-4 flex items-start gap-6">
+    <div v-if="selectedImage" class="mt-4 flex items-center gap-16" style="height: 16rem;">
       <!-- 画像エリア（左側） -->
-      <div class="flex-1">
+      <div class="flex-1 flex flex-col justify-center items-center">
         <img
           :src="selectedImage"
           alt="選択された画像"
           class="rounded-lg object-contain"
-          style="width: 100%; max-width: 300px; max-height: 16rem;"
+          style="width: 100%; max-width: 300px; max-height: 14rem;"
         />
         <p class="text-sm text-gray-500 mt-2">{{ selectedFileName }}</p>
       </div>
