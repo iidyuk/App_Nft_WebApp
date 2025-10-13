@@ -49,8 +49,8 @@
 <script setup lang="ts">
 
   import { ref, onMounted } from 'vue'
-  import MetadataUploader from './components/MetadataUploader.vue'
-  import NFTMinter from './components/NFTMinter.vue'
+  // import MetadataUploader from './components/MetadataUploader.vue'
+  // import NFTMinter from './components/NFTMinter.vue'
 
   // クエリパラメータから画像情報を取得
   const route = useRoute()

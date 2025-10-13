@@ -21,25 +21,37 @@
 
     <!-- 画像選択・アップロード用コンポーネント @はv-on :はv-bind -->
     <ImageSelector 
-      @image-selected="handleImageSelected"  
-      @image-uploaded="handleImageUploaded"
-      :is-uploaded="!!uploadedImageInfo"
+      @image-selected="handleImageSelected"
+    >
+      <template #upload-section>
+        <ImageUploader 
+          v-if="selectedFile"
+          :selected-file="selectedFile"
+          :selected-file-name="selectedFileName"
+          @image-uploaded="handleImageUploaded"
+          @metadata-uploaded="handleMetadataUploaded"
+          @status-message="handleStatusMessage"
+        />
+      </template>
+    </ImageSelector>
+
+    <!-- ステータスメッセージ表示（画像とボタン部分の下段） -->
+    <div v-if="statusMessage" class="mt-4 p-3 rounded-lg" :class="getStatusMessageClass(statusMessageType)">
+      <p class="text-sm">{{ statusMessage }}</p>
+    </div>
+
+    <!-- メタデータアップロードのステータス表示（画像の下段） -->
+    <MetadataUploader 
+      v-if="uploadedImageInfo"
+      :uploaded-image-info="uploadedImageInfo"
+      @metadata-uploaded="handleMetadataUploaded"
     />
 
-    <!-- アップロード完了情報の表示 -->
-    <div v-if="uploadedImageInfo" class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-      <h3 class="text-lg font-medium text-blue-800 mb-2">画像アップロード完了</h3>
-      
-      <!-- NFT作成ページへの遷移ボタン -->
-      <div class="mt-4">
-        <NuxtLink 
-          :to="`/nft-creation?imageUrl=${encodeURIComponent(uploadedImageInfo.url)}&fileName=${encodeURIComponent(uploadedImageInfo.fileName)}`"
-          class="inline-block bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-300 ease-in-out transform hover:scale-105"
-        >
-          次のステップ: メタデータ作成
-        </NuxtLink>
-      </div>
-    </div>
+    <!-- NFT発行コンポーネント -->
+    <NFTMinter 
+      v-if="metadataUploadResult && metadataUploadResult.success"
+      :metadata-url="metadataUploadResult.url || ''"
+    />
 
     <NuxtLink to="/" class="inline-block bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded transition mt-8">Top Page</NuxtLink>
   </div>
@@ -48,11 +60,18 @@
 <script setup lang="ts">
   import { ref } from 'vue'
   import ImageSelector from './components/ImageSelector.vue'
+  import ImageUploader from './components/ImageUploader.vue'
+  import MetadataUploader from './components/MetadataUploader.vue'
+  import NFTMinter from './components/NFTMinter.vue'
 
   // ref() 変数の定義
   const selectedFile = ref<File | null>(null)  // 画像ファイル
   const selectedImageUrl = ref<string>('')  // 画像の一時的なURL
+  const selectedFileName = ref<string>('')  // 選択されたファイル名
   const uploadedImageInfo = ref<{ url: string; fileName: string } | null>(null)  // 画像のURL(supabase)
+  const metadataUploadResult = ref<{ success: boolean; url?: string; hash?: string; message: string; error?: string } | null>(null)  // メタデータアップロード結果
+  const statusMessage = ref<string>('')  // ステータスメッセージ
+  const statusMessageType = ref<'success' | 'error' | 'info'>('info')  // ステータスメッセージのタイプ
 
   // ステップ情報の定義
   const steps = ref([
@@ -66,6 +85,7 @@
   const handleImageSelected = (file: File, imageUrl: string) => {
     selectedFile.value = file
     selectedImageUrl.value = imageUrl
+    selectedFileName.value = file.name
     console.log('選択されたファイル:', file.name)
     console.log('ファイルサイズ:', file.size, 'bytes')
   }
@@ -73,8 +93,47 @@
   // 画像アップロード完了時の処理
   const handleImageUploaded = (url: string, fileName: string) => {
     uploadedImageInfo.value = { url, fileName }  // アップロード済みの画像情報
+    // ステップ2をアクティブにする
+    steps.value[1].isActive = true
     console.log('画像アップロード完了:', fileName)
     console.log('画像アップロードURL:', url)
+  }
+
+  // メタデータアップロード完了時の処理
+  const handleMetadataUploaded = (result: { success: boolean; url?: string; hash?: string; message: string; error?: string }) => {
+    metadataUploadResult.value = result
+    if (result.success) {
+      // ステップ3をアクティブにする
+      steps.value[2].isActive = true
+    }
+    console.log('メタデータアップロード完了:', result)
+  }
+
+  // ステータスメッセージの処理
+  const handleStatusMessage = (message: string, type: 'success' | 'error' | 'info') => {
+    statusMessage.value = message
+    statusMessageType.value = type
+    
+    // 成功メッセージは3秒後に自動で消す
+    if (type === 'success') {
+      setTimeout(() => {
+        statusMessage.value = ''
+      }, 3000)
+    }
+  }
+
+  // ステータスメッセージのCSSクラスを取得
+  const getStatusMessageClass = (type: 'success' | 'error' | 'info') => {
+    switch (type) {
+      case 'success':
+        return 'bg-green-100 border border-green-400 text-green-700'
+      case 'error':
+        return 'bg-red-100 border border-red-400 text-red-700'
+      case 'info':
+        return 'bg-blue-100 border border-blue-400 text-blue-700'
+      default:
+        return 'bg-gray-100 border border-gray-400 text-gray-700'
+    }
   }
 
   // 環境変数のテスト

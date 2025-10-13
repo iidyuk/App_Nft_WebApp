@@ -1,5 +1,16 @@
 <template>
-  <div v-if="shouldShowUploader" class="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+  <!-- ボタン部分（ImageSelectorの右側に配置） -->
+  <div v-if="shouldShowUploader && !isUploading && !uploadResult" class="flex flex-col items-center">
+    <button
+      @click="handleUploadMetadata"
+      class="bg-yellow-600 hover:bg-yellow-700 text-white font-semibold py-2 px-6 rounded transition duration-300 ease-in-out transform hover:scale-105"
+    >
+      Upload Metadata
+    </button>
+  </div>
+
+  <!-- ステータス表示部分（画像の下段に表示） -->
+  <div v-if="shouldShowUploader && (isUploading || uploadResult)" class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
     <h3 class="text-lg font-medium text-yellow-800 mb-4">NFTメタデータ作成</h3>
     
     <!-- メタデータアップロード中の表示 -->
@@ -26,16 +37,6 @@
           再試行
         </button>
       </div>
-    </div>
-    
-    <!-- アップロードボタン -->
-    <div v-else class="text-center">
-      <button
-        @click="handleUploadMetadata"
-        class="bg-yellow-600 hover:bg-yellow-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-300 ease-in-out transform hover:scale-105"
-      >
-        メタデータを生成してPINATAにアップロード
-      </button>
     </div>
   </div>
 </template>
