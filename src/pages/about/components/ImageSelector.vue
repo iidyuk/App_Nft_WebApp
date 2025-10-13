@@ -1,12 +1,12 @@
 <template>
   <div
-    class="my-8 p-6 rounded-lg mx-auto w-full flex flex-col justify-center"
-    :style="{ backgroundColor: '#EAE9E9', maxWidth: '800px',
+    class="my-4 rounded-lg mx-auto flex flex-col justify-center items-center"
+    :style="{ backgroundColor: selectedImage ? 'transparent' : '#EAE9E9',  maxWidth: '600px',
       height: selectedImage ? 'auto' : '400px', minHeight: selectedImage ? '400px' : '400px' }"
   >
     
     <!-- ファイル選択ボタン -->
-    <div v-if="!selectedImage" class="mb-4">
+    <div v-if="!selectedImage" class="mt-16">
       <label for="image-upload" class="cursor-pointer inline-flex items-center gap-2 text-white font-semibold py-2 px-6 rounded transition">
         <svg xmlns="http://www.w3.org/2000/svg" height="120px" viewBox="0 -960 960 960" width="120px" fill="#1A1A1A">
           <path d="M480-480ZM186.67-120q-27 0-46.84-19.83Q120-159.67 120-186.67v-586.66q0-27 19.83-46.84Q159.67-840 186.67-840h350v66.67h-350v586.66h586.66v-350H840v350q0 27-19.83 46.84Q800.33-120 773.33-120H186.67ZM240-281.33h480L574-476 449.33-311.33 356.67-434 240-281.33Zm448.67-322V-688h-85.34v-66.67h85.34V-840h66.66v85.33H840V-688h-84.67v84.67h-66.66Z"/>
@@ -22,20 +22,21 @@
     </div>
 
     <!-- 選択された画像のプレビュー -->
-    <div v-if="selectedImage" class="mt-4">
-      <div>
+    <div v-if="selectedImage" class="mt-4 flex items-start gap-6">
+      <!-- 画像エリア（左側） -->
+      <div class="flex-1">
         <img
           :src="selectedImage"
           alt="選択された画像"
-          class="mx-auto rounded-lg shadow-md object-contain"
-          style="width: 30vw; min-width: 240px; max-height: 16rem;"
+          class="rounded-lg object-contain"
+          style="width: 100%; max-width: 300px; max-height: 16rem;"
         />
         <p class="text-sm text-gray-500 mt-2">{{ selectedFileName }}</p>
       </div>
       
-      <!-- アップロードボタン -->
-      <div>
-        <p class="mb-2">
+      <!-- ボタン・テキストエリア（右側） -->
+      <div class="flex flex-col justify-around items-center" style="height: 16rem;">
+        <div class="flex flex-col items-center gap-12">
           <button
             @click="handleUpload"
             :disabled="isUploading || isUploaded"
@@ -44,25 +45,27 @@
           >
             {{ isUploaded ? 'Upload Complete' : (isUploading ? 'Uploading...' : 'Upload to Supabase') }}
           </button>
-        </p>
-      </div>
-
-      <!-- アップロード進捗 -->
-      <!-- <div v-if="isUploading" class="mt-4">
-        <div class="w-full bg-gray-200 rounded-full h-2.5">
-          <div
-            class="bg-green-600 h-2.5 rounded-full transition-all duration-300"
-            :style="{ width: uploadProgress + '%' }"
-          ></div>
+          
+          <button
+            disabled
+            class="bg-gray-300 text-gray-500 font-semibold py-2 px-6 rounded"
+          >
+            Upload Metadata
+          </button>
+          
+          <button
+            disabled
+            class="bg-gray-300 text-gray-500 font-semibold py-2 px-6 rounded"
+          >
+            Create NFT
+          </button>
         </div>
-        <p class="text-sm text-gray-600 mt-2">{{ uploadProgress }}% 完了</p>
-      </div> -->
+      </div>
 
       <!-- アップロードエラー -->
       <div v-if="uploadError" class="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
         <p class="text-sm">{{ uploadError }}</p>
       </div>
-
     </div>
 
     <!-- ファイルが選択されていない場合のメッセージ -->
@@ -132,6 +135,10 @@
         
         emit('imageSelected', file, imageUrl)  // 親コンポーネントに選択されたファイル情報を渡す
       }
+      
+      reader.onerror = (e) => {
+        console.error('FileReader error:', e) // エラーログ
+      }
 
       reader.readAsDataURL(file)  // ファイルをBase64エンコードされたデータURLとして読み込み
         // 形式 data:image/jpeg;base64,/9j/4AAQ...
@@ -160,17 +167,6 @@
     }
   }
 
-  // URLをクリップボードにコピー
-  // const copyUrl = async () => {
-  //   if (uploadedImageUrl.value) {
-  //     try {
-  //       await navigator.clipboard.writeText(uploadedImageUrl.value)
-  //       alert('URLをクリップボードにコピーしました')
-  //     } catch (error) {
-  //       console.error('URLのコピーに失敗しました:', error)
-  //     }
-  //   }
-  // }
 
   // 外部からアクセス可能なメソッドを公開
   // defineExpose({

@@ -1,26 +1,25 @@
 <template>
-  <div class="max-w-lg mx-auto mt-20 p-8 text-center">
-    <h1 class="text-3xl font-bold text-green-600 mb-4">画像アップロード</h1>
+  <div class="max-w-4xl mx-auto mt-8 p-8 text-center">
+    <h1 class="text-3xl font-bold mb-6">画像アップロード</h1>
     
     <!-- ステップ表示 -->
-    <div class="mb-6 flex justify-center items-center">
+    <div class="mb-4 flex justify-center items-center">
       <div 
         v-for="(step, index) in steps" 
         :key="index"
         class="flex items-center"
-        :style="{ marginRight: index < steps.length - 1 ? '32px' : '0' }"
+        :style="{ marginRight: index < steps.length - 1 ? '40px' : '0' }"
       >
-        <div 
-          :class="[step.isActive ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-500']">
+        <div  :class="['text-sm', step.isActive ? 'text-gray-600' : 'text-gray-300']">
           {{ step.number }}
         </div>
-        <span :class="['text-sm', step.isActive ? 'text-gray-600' : 'text-gray-400']">
+        <span :class="['text-sm', step.isActive ? 'text-gray-600' : 'text-gray-300']">
           {{ step.title }}
         </span>
       </div>
     </div>
 
-    <!-- 画像選択用コンポーネント @はv-on :はv-bind -->
+    <!-- 画像選択・アップロード用コンポーネント @はv-on :はv-bind -->
     <ImageSelector 
       @image-selected="handleImageSelected"  
       @image-uploaded="handleImageUploaded"
