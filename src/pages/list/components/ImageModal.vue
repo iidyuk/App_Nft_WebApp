@@ -5,7 +5,7 @@
     <div class="absolute inset-0 bg-gray-900 bg-opacity-95"></div>
     
     <!-- ポップアップコンテンツ -->
-    <div lass="relative bg-white rounded-lg shadow-xl max-w-4xl w-full max-w-[720px] max-h-[90vh] overflow-y-auto" @click.stop>
+    <div class="relative bg-white rounded-lg shadow-xl max-w-4xl w-full max-w-[720px] max-h-[90vh] overflow-y-auto" @click.stop>
       <!-- ヘッダー（閉じるボタン） -->
       <div class="flex justify-end p-4">
         <button @click="closeModal" class="text-gray-500 hover:text-gray-700 transition-colors">
