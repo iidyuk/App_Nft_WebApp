@@ -1,29 +1,29 @@
 <template>
   <div class="max-w-2xl mx-auto mt-20 p-8 bg-white rounded-lg shadow">
-    <h1 class="text-3xl font-bold text-blue-600 mb-6">Pinata API接続テスト</h1>
+    <h1 class="text-3xl font-bold text-blue-600 mb-6">Pinata API Connection Test</h1>
     
     <!-- API接続チェック -->
     <div class="mb-6 p-6 bg-gray-50 rounded-lg">
-      <h2 class="text-xl font-semibold text-gray-700 mb-4">API接続チェック</h2>
+      <h2 class="text-xl font-semibold text-gray-700 mb-4">API Connection Check</h2>
       <button
         @click="testConnection"
         :disabled="isTesting"
         class="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white font-semibold py-2 px-6 rounded transition"
       >
-        {{ isTesting ? 'テスト中...' : 'API接続をテスト' }}
+        {{ isTesting ? 'Testing...' : 'Test API Connection' }}
       </button>
       
       <div v-if="connectionResult" class="mt-4 p-4 rounded-lg" :class="connectionResult.success ? 'bg-green-100 border border-green-400 text-green-700' : 'bg-red-100 border border-red-400 text-red-700'">
         <h3 class="font-semibold mb-2">{{ connectionResult.message }}</h3>
         <div v-if="!connectionResult.success" class="text-sm">
-          <p><strong>エラー:</strong> {{ connectionResult.error }}</p>
+          <p><strong>Error:</strong> {{ connectionResult.error }}</p>
         </div>
       </div>
     </div>
 
     <!-- JSONメタデータアップロードテスト -->
     <div class="mb-6 p-6 bg-gray-50 rounded-lg">
-      <h2 class="text-xl font-semibold text-gray-700 mb-4">JSONメタデータアップロードテスト</h2>
+      <h2 class="text-xl font-semibold text-gray-700 mb-4">JSON Metadata Upload Test</h2>
       
       <div class="mb-4">
         <textarea
@@ -38,7 +38,7 @@
         :disabled="isJSONUploading || !metadataJSON"
         class="bg-purple-500 hover:bg-purple-600 disabled:bg-gray-400 text-white font-semibold py-2 px-6 rounded transition"
       >
-        {{ isJSONUploading ? 'アップロード中...' : 'JSONメタデータをアップロード' }}
+        {{ isJSONUploading ? 'Uploading...' : 'Upload JSON Metadata' }}
       </button>
       
       <div v-if="jsonUploadResult" class="mt-4 p-4 rounded-lg" :class="jsonUploadResult.success ? 'bg-green-100 border border-green-400 text-green-700' : 'bg-red-100 border border-red-400 text-red-700'">
@@ -55,18 +55,18 @@
 
     <!-- 環境変数チェック -->
     <div class="p-6 bg-gray-50 rounded-lg">
-      <h2 class="text-xl font-semibold text-gray-700 mb-4">環境変数チェック</h2>
+      <h2 class="text-xl font-semibold text-gray-700 mb-4">Environment Variable Check</h2>
       <div class="text-sm">
         <p><strong>Pinata JWT Key:</strong> 
           <span v-if="pinataJWTKey" class="break-all text-green-700">
-            設定済み (先頭5文字: {{ pinataJWTKey.substring(0, 5) }}...)
+            設定済み (First 5 characters: {{ pinataJWTKey.substring(0, 5) }}...)
           </span>
           <span v-else class="text-red-600">
             未設定
           </span>
         </p>
         <p v-if="!pinataJWTKey" class="text-red-600 mt-2">
-          .envファイルにPINATA_JWT_KEYを設定してください
+          PINATA_JWT_KEYを設定してください
         </p>
       </div>
     </div>
@@ -85,30 +85,15 @@ const isTesting = ref(false)
 const isJSONUploading = ref(false)
 const connectionResult = ref<any>(null)
 const jsonUploadResult = ref<any>(null)
-const metadataJSON = ref('')
+const metadataJSON = ref(`{
+  "name": "Sample NFT Metadata",
+  "description": "This is a sample NFT metadata for Pinata test.",
+  "image": "ipfs://QmTfN2B3jB92Y5B5d5B5d5B5d5B5d5B5d5B5d5B5d5"
+}`)
 
 // 環境変数を取得
 const config = useRuntimeConfig()
 const pinataJWTKey = config.public.pinataJWTKey
-
-// デフォルトのメタデータを設定
-onMounted(() => {
-  metadataJSON.value = JSON.stringify({
-    name: "Sample NFT Metadata",
-    description: "This is a sample NFT metadata for Pinata test.",
-    image: "ipfs://QmTfN2B3jB92Y5B5d5B5d5B5d5B5d5B5d5B5d5B5d5", // サンプル画像URL（実際のIPFSハッシュに置き換えてください）
-    attributes: [
-      {
-        trait_type: "Test",
-        value: "Pinata"
-      },
-      {
-        trait_type: "Version",
-        value: "1.0"
-      }
-    ]
-  }, null, 2)
-})
 
 // API接続テスト
 const testConnection = async () => {
