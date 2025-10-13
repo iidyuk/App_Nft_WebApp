@@ -10,10 +10,10 @@
         class="flex items-center"
         :style="{ marginRight: index < steps.length - 1 ? '40px' : '0' }"
       >
-        <div  :class="['text-sm', step.isActive ? 'text-gray-600' : 'text-gray-300']">
+        <div  :class="['text-sm', step.isActive ? 'text-green-600' : 'text-gray-300']">
           {{ step.number }}
         </div>
-        <span :class="['text-sm', step.isActive ? 'text-gray-600' : 'text-gray-300']">
+        <span :class="['text-sm', step.isActive ? 'text-green-600' : 'text-gray-300']">
           {{ step.title }}
         </span>
       </div>
