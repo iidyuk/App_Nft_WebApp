@@ -28,29 +28,35 @@
           v-if="selectedFile"
           :selected-file="selectedFile"
           :selected-file-name="selectedFileName"
+          :is-metadata-uploaded="!!metadataUploadResult?.success"
           @image-uploaded="handleImageUploaded"
-          @metadata-uploaded="handleMetadataUploaded"
           @status-message="handleStatusMessage"
+          @metadata-upload-requested="handleMetadataUploadRequested"
+          @nft-creation-requested="handleNFTCreationRequested"
         />
       </template>
     </ImageSelector>
+
+    <!-- MetadataUploader（ImageUploaderの下段） -->
+    <MetadataUploader 
+      v-if="uploadedImageInfo"
+      :uploaded-image-info="uploadedImageInfo"
+      :upload-requested="metadataUploadRequested"
+      @metadata-uploaded="handleMetadataUploaded"
+      @status-message="handleStatusMessage"
+    />
 
     <!-- ステータスメッセージ表示（画像とボタン部分の下段） -->
     <div v-if="statusMessage" class="mt-4 p-3 rounded-lg" :class="getStatusMessageClass(statusMessageType)">
       <p class="text-sm">{{ statusMessage }}</p>
     </div>
 
-    <!-- メタデータアップロードのステータス表示（画像の下段） -->
-    <MetadataUploader 
-      v-if="uploadedImageInfo"
-      :uploaded-image-info="uploadedImageInfo"
-      @metadata-uploaded="handleMetadataUploaded"
-    />
-
-    <!-- NFT発行コンポーネント -->
+    <!-- NFTMinter（MetadataUploaderの下段） -->
     <NFTMinter 
-      v-if="metadataUploadResult && metadataUploadResult.success"
+      v-if="metadataUploadResult?.success"
       :metadata-url="metadataUploadResult.url || ''"
+      :mint-requested="nftCreationRequested"
+      @status-message="handleStatusMessage"
     />
 
     <NuxtLink to="/" class="inline-block bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded transition mt-8">Top Page</NuxtLink>
@@ -72,6 +78,8 @@
   const metadataUploadResult = ref<{ success: boolean; url?: string; hash?: string; message: string; error?: string } | null>(null)  // メタデータアップロード結果
   const statusMessage = ref<string>('')  // ステータスメッセージ
   const statusMessageType = ref<'success' | 'error' | 'info'>('info')  // ステータスメッセージのタイプ
+  const metadataUploadRequested = ref<boolean>(false)  // メタデータアップロード要求フラグ
+  const nftCreationRequested = ref<boolean>(false)  // NFT作成要求フラグ
 
   // ステップ情報の定義
   const steps = ref([
@@ -99,9 +107,24 @@
     console.log('画像アップロードURL:', url)
   }
 
+  // NFT作成要求の処理
+  const handleNFTCreationRequested = () => {
+    nftCreationRequested.value = true
+    // ステップ3をアクティブにする
+    steps.value[2].isActive = true
+  }
+
+  // メタデータアップロード要求の処理
+  const handleMetadataUploadRequested = () => {
+    metadataUploadRequested.value = true
+    // ステップ2をアクティブにする
+    steps.value[1].isActive = true
+  }
+
   // メタデータアップロード完了時の処理
   const handleMetadataUploaded = (result: { success: boolean; url?: string; hash?: string; message: string; error?: string }) => {
     metadataUploadResult.value = result
+    metadataUploadRequested.value = false  // 要求フラグをリセット
     if (result.success) {
       // ステップ3をアクティブにする
       steps.value[2].isActive = true

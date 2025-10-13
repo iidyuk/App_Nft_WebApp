@@ -1,37 +1,41 @@
 <template>
-  <div class="mt-6 p-4 bg-purple-50 border border-purple-200 rounded-lg">
+  <!-- NFT発行処理中の表示 -->
+  <div v-if="isMintingNFT" class="mt-4 p-4 bg-purple-50 border border-purple-200 rounded-lg">
     <h3 class="text-lg font-medium text-purple-800 mb-4">NFT発行</h3>
-    
-    <!-- コントラクトアドレスが設定されていない場合の警告 -->
-    <div v-if="!CONTRACT_ADDRESS" class="mb-4 p-3 bg-red-100 border border-red-300 rounded-lg">
-      <p class="text-red-700 text-sm">NFTコントラクトアドレスが設定されていません</p>
+    <div class="text-center">
+      <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mb-2"></div>
+      <p class="text-purple-700">NFTを発行中...</p>
     </div>
-    
-    <button
-      @click="mintNFT"
-      :disabled="isMintingNFT || !metadataUrl || !CONTRACT_ADDRESS"
-      class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-    >
-      {{ isMintingNFT ? 'NFT発行中...' : 'NFTを発行する' }}
-    </button>
-    <div v-if="mintingResult" class="mt-4 text-sm">
-      <p
-        v-if="mintingResult.success"
-        class="text-green-600"
-      >
-        <strong>NFTを発行しました</strong> トランザクションハッシュ:
+  </div>
+
+  <!-- NFT発行完了時の表示 -->
+  <div v-else-if="mintingResult" class="mt-4 p-4 rounded-lg" :class="mintingResult.success ? 'bg-green-100 border border-green-400 text-green-700' : 'bg-red-100 border border-red-400 text-red-700'">
+    <h3 class="text-lg font-medium mb-4">NFT発行</h3>
+    <h4 class="font-semibold mb-2">{{ mintingResult.success ? 'NFTを発行しました' : 'NFTの発行に失敗しました' }}</h4>
+
+    <div v-if="mintingResult.success" class="text-sm">
+      <p><strong>トランザクションハッシュ:</strong> 
         <a
           :href="`https://sepolia.etherscan.io/tx/${mintingResult.transactionHash}`"
           target="_blank" class="text-blue-600 hover:underline break-all">{{ mintingResult.transactionHash }}
         </a>
       </p>
-      <p v-else class="text-red-600"><strong>NFTの発行に失敗しました</strong> {{ mintingResult.error }}</p>
+    </div>
+    
+    <div v-if="!mintingResult.success" class="text-sm">
+      <p><strong>エラー:</strong> {{ mintingResult.error }}</p>
+      <button 
+        @click="retryMint" 
+        class="mt-2 bg-red-500 hover:bg-red-600 text-white text-sm py-1 px-3 rounded"
+      >
+        再試行
+      </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-  import { ref, defineProps } from 'vue'
+  import { ref, defineProps, defineEmits, watch } from 'vue'
   import { ethers } from 'ethers'
   import { MyNFT_ABI } from '~/lib/contracts/MyNFT_ABI'  // コントラクトのインターフェース定義
 
@@ -39,8 +43,16 @@
     metadataUrl: {
       type: String,
       required: true
+    },
+    mintRequested: {
+      type: Boolean,
+      default: false
     }
   })
+
+  const emit = defineEmits<{
+    statusMessage: [message: string, type: 'success' | 'error' | 'info']
+  }>()
 
   const isMintingNFT = ref(false)
   const mintingResult = ref<any>(null)
@@ -49,28 +61,34 @@
   const config = useRuntimeConfig()
   const CONTRACT_ADDRESS = config.public.nftContractAddress
 
+  // ステータスメッセージをemitする関数
+  const emitStatusMessage = (message: string, type: 'success' | 'error' | 'info') => {
+    emit('statusMessage', message, type)
+  }
+
   const mintNFT = async () => {
 
     // メタデータURLのチェック
     if (!props.metadataUrl) {
-      alert('メタデータURLがありません。先にメタデータをアップロードしてください。')
+      emitStatusMessage('メタデータURLがありません。先にメタデータをアップロードしてください。', 'error')
       return
     }
 
     // コントラクトアドレスのチェック
     if (!CONTRACT_ADDRESS) {
-      alert('NFTコントラクトアドレスが設定されていません')
+      emitStatusMessage('NFTコントラクトアドレスが設定されていません', 'error')
       return
     }
 
     isMintingNFT.value = true  // NFT発行処理の状態
     mintingResult.value = null  // NFT発行結果の情報
+    emitStatusMessage('NFTを発行中...', 'info')
 
     try {
       // MetaMaskなどのウォレットプロバイダに接続
       // @ts-ignore
       if (!window.ethereum) {
-        alert('MetaMask (またはWeb3ウォレット) がインストールされていません。')
+        emitStatusMessage('MetaMask (またはWeb3ウォレット) がインストールされていません。', 'error')
         isMintingNFT.value = false
         return
       }
@@ -93,16 +111,31 @@
         transactionHash: transaction.hash,
         message: 'NFTが正常に発行されました！'
       }
+      emitStatusMessage('NFTの発行が完了しました', 'success')
     } catch (error) {
       console.error('NFT発行エラー:', error)
       mintingResult.value = {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error'
       }
+      emitStatusMessage('NFTの発行に失敗しました', 'error')
     } finally {
       isMintingNFT.value = false
     }
   }
+
+  // 再試行処理
+  const retryMint = () => {
+    mintingResult.value = null
+    mintNFT()
+  }
+
+  // NFT発行要求の監視
+  watch(() => props.mintRequested, (requested) => {
+    if (requested && props.metadataUrl) {
+      mintNFT()
+    }
+  })
 </script>
 
 <!-- Note

@@ -10,17 +10,22 @@
       {{ isUploaded ? 'Upload Complete' : (isUploading ? 'Uploading...' : 'Upload to Supabase') }}
     </button>
     
-    <!-- MetadataUploaderのボタン部分 -->
-    <MetadataUploaderButton 
-      v-if="isUploaded"
-      :uploaded-image-info="{ url: uploadedImageUrl || '', fileName: selectedFileName }"
-      @metadata-uploaded="handleMetadataUploaded"
-    />
-    
-    <!-- Create NFTボタン（将来の実装用） -->
+    <!-- Upload Metadataボタン -->
     <button
-      disabled
-      class="bg-gray-300 text-gray-500 font-semibold py-2 px-6 rounded"
+      @click="handleMetadataUpload"
+      :disabled="!isUploaded"
+      class="disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold py-2 px-6 rounded transition"
+      :class="isUploaded ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-gray-300'"
+    >
+      Upload Metadata
+    </button>
+    
+    <!-- Create NFTボタン -->
+    <button
+      @click="handleCreateNFT"
+      :disabled="!isMetadataUploaded"
+      class="disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold py-2 px-6 rounded transition"
+      :class="isMetadataUploaded ? 'bg-purple-600 hover:bg-purple-700' : 'bg-gray-300'"
     >
       Create NFT
     </button>
@@ -28,8 +33,6 @@
 </template>
 
 <script setup lang="ts">
-  import MetadataUploaderButton from './MetadataUploader.vue'
-
   // 画像アップロード機能をインポート
   const { 
     isUploading,
@@ -43,17 +46,20 @@
   const props = defineProps<{
     selectedFile: File | null
     selectedFileName: string
+    isMetadataUploaded?: boolean  // メタデータアップロード完了状態
   }>()
 
   // emit（親コンポーネントに渡すデータ）の設定
   const emit = defineEmits<{
     imageUploaded: [url: string, fileName: string]
-    metadataUploaded: [result: any]
     statusMessage: [message: string, type: 'success' | 'error' | 'info']
+    metadataUploadRequested: []
+    nftCreationRequested: []
   }>()
 
   // アップロード状態の計算プロパティ
   const isUploaded = computed(() => !!uploadedImageUrl.value)
+  const isMetadataUploaded = computed(() => props.isMetadataUploaded || false)
 
   // ステータスメッセージをemitする関数
   const emitStatusMessage = (message: string, type: 'success' | 'error' | 'info') => {
@@ -76,9 +82,16 @@
     }
   }
 
-  // メタデータアップロード完了時の処理
-  const handleMetadataUploaded = (result: any) => {
-    emit('metadataUploaded', result)  // 親コンポーネントにメタデータアップロード完了を通知
+  // メタデータアップロード要求の処理
+  const handleMetadataUpload = () => {
+    if (!isUploaded.value) return
+    emit('metadataUploadRequested')  // 親コンポーネントにメタデータアップロード要求を通知
+  }
+
+  // NFT作成要求の処理
+  const handleCreateNFT = () => {
+    if (!isMetadataUploaded.value) return
+    emit('nftCreationRequested')  // 親コンポーネントにNFT作成要求を通知
   }
 
   // ファイルが変更された時にアップロード状態をリセット

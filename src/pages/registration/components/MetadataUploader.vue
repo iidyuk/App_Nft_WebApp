@@ -1,42 +1,31 @@
 <template>
-  <!-- ボタン部分（ImageSelectorの右側に配置） -->
-  <div v-if="shouldShowUploader && !isUploading && !uploadResult" class="flex flex-col items-center">
-    <button
-      @click="handleUploadMetadata"
-      class="bg-yellow-600 hover:bg-yellow-700 text-white font-semibold py-2 px-6 rounded transition duration-300 ease-in-out transform hover:scale-105"
-    >
-      Upload Metadata
-    </button>
-  </div>
-
-  <!-- ステータス表示部分（画像の下段に表示） -->
-  <div v-if="shouldShowUploader && (isUploading || uploadResult)" class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+  <!-- メタデータアップロード処理中の表示 -->
+  <div v-if="isUploading" class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
     <h3 class="text-lg font-medium text-yellow-800 mb-4">NFTメタデータ作成</h3>
-    
-    <!-- メタデータアップロード中の表示 -->
-    <div v-if="isUploading" class="text-center">
+    <div class="text-center">
       <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-600 mb-2"></div>
       <p class="text-yellow-700">メタデータをPINATAにアップロード中...</p>
     </div>
-    
-    <!-- アップロード完了時の表示 -->
-    <div v-else-if="uploadResult" class="rounded-lg" :class="uploadResult.success ? 'bg-green-100 border border-green-400 text-green-700' : 'bg-red-100 border border-red-400 text-red-700'">
-      <h4 class="font-semibold mb-2">{{ uploadResult.message }}</h4>
+  </div>
 
-      <div v-if="uploadResult.success" class="text-sm">
-        <p><strong>IPFS Hash:</strong> {{ uploadResult.hash }}</p>
-        <p><strong>URL:</strong> <a :href="uploadResult.url" target="_blank" class="text-blue-600 hover:underline break-all">{{ uploadResult.url }}</a></p>
-      </div>
-      
-      <div v-if="!uploadResult.success" class="text-sm">
-        <p><strong>エラー:</strong> {{ uploadResult.error }}</p>
-        <button 
-          @click="retryUpload" 
-          class="mt-2 bg-red-500 hover:bg-red-600 text-white text-sm py-1 px-3 rounded"
-        >
-          再試行
-        </button>
-      </div>
+  <!-- アップロード完了時の表示 -->
+  <div v-else-if="uploadResult" class="mt-4 p-4 rounded-lg" :class="uploadResult.success ? 'bg-green-100 border border-green-400 text-green-700' : 'bg-red-100 border border-red-400 text-red-700'">
+    <h3 class="text-lg font-medium mb-4">NFTメタデータ作成</h3>
+    <h4 class="font-semibold mb-2">{{ uploadResult.message }}</h4>
+
+    <div v-if="uploadResult.success" class="text-sm">
+      <p><strong>IPFS Hash:</strong> {{ uploadResult.hash }}</p>
+      <p><strong>URL:</strong> <a :href="uploadResult.url" target="_blank" class="text-blue-600 hover:underline break-all">{{ uploadResult.url }}</a></p>
+    </div>
+    
+    <div v-if="!uploadResult.success" class="text-sm">
+      <p><strong>エラー:</strong> {{ uploadResult.error }}</p>
+      <button 
+        @click="retryUpload" 
+        class="mt-2 bg-red-500 hover:bg-red-600 text-white text-sm py-1 px-3 rounded"
+      >
+        再試行
+      </button>
     </div>
   </div>
 </template>
@@ -61,11 +50,13 @@
   const props = defineProps<{
     uploadedImageInfo: UploadedImageInfo | null  // 画像情報
     autoUpload?: boolean // 自動アップロードするかどうか
+    uploadRequested?: boolean // メタデータアップロード要求フラグ
     // customMetadata?: object // カスタムメタデータ（オプション）  ??
   }>()
 
   const emit = defineEmits<{
     metadataUploaded: [result: MetadataUploadResult]
+    statusMessage: [message: string, type: 'success' | 'error' | 'info']
     // uploadStarted: []  // ??
     // uploadCompleted: [success: boolean]  // ??
   }>()
@@ -77,6 +68,11 @@
   const shouldShowUploader = computed(() => {
     return props.uploadedImageInfo !== null
   })
+
+  // ステータスメッセージをemitする関数
+  const emitStatusMessage = (message: string, type: 'success' | 'error' | 'info') => {
+    emit('statusMessage', message, type)
+  }
 
   // メタデータ生成関数
   // const generateNFTMetadata = (imageInfo: UploadedImageInfo, customData?: object) => {
@@ -107,11 +103,13 @@
 
     if (!props.uploadedImageInfo) {
       console.error('画像情報がありません')
+      emitStatusMessage('画像情報がありません', 'error')
       return
     }
 
     isUploading.value = true  // アップロード状態
     uploadResult.value = null  // Pinataへのアップロードデータ用
+    emitStatusMessage('メタデータをPINATAにアップロード中...', 'info')
     // emit('uploadStarted')
 
     try {
@@ -126,6 +124,12 @@
       
       console.log('メタデータアップロード結果:', result)
       emit('metadataUploaded', result)
+      
+      if (result.success) {
+        emitStatusMessage('メタデータのアップロードが完了しました', 'success')
+      } else {
+        emitStatusMessage('メタデータのアップロードに失敗しました', 'error')
+      }
       // emit('uploadCompleted', result.success)
       
     } catch (error) {
@@ -138,6 +142,7 @@
       uploadResult.value = errorResult
       console.error('NFTメタデータのPinataアップロードエラー:', error)
       emit('metadataUploaded', errorResult)
+      emitStatusMessage('メタデータのアップロードに失敗しました', 'error')
       // emit('uploadCompleted', false)
       
     } finally {
@@ -150,6 +155,13 @@
     uploadResult.value = null
     handleUploadMetadata()
   }
+
+  // メタデータアップロード要求の監視
+  watch(() => props.uploadRequested, (requested) => {
+    if (requested && props.uploadedImageInfo) {
+      handleUploadMetadata()
+    }
+  })
 
   // 画像情報が変更された時の自動アップロード（明示的にtrueの場合のみ）
   watch(() => props.uploadedImageInfo, (newImageInfo) => {
