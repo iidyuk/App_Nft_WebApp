@@ -70,6 +70,11 @@
   import MetadataUploader from './components/MetadataUploader.vue'
   import NFTMinter from './components/NFTMinter.vue'
 
+  // 認証が必要なページとして設定
+  definePageMeta({
+    middleware: 'auth'
+  })
+
   // ref() 変数の定義
   const selectedFile = ref<File | null>(null)  // 画像ファイル
   const selectedImageUrl = ref<string>('')  // 画像の一時的なURL

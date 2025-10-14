@@ -39,6 +39,11 @@
   import Pagination from './components/Pagination.vue'
   import ImageGrid from './components/ImageGrid.vue'
 
+  // 認証が必要なページとして設定
+  definePageMeta({
+    middleware: 'auth'
+  })
+
   // 型定義
   interface ImageFile {
     name: string
