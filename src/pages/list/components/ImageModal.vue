@@ -6,11 +6,10 @@
     <div class="absolute inset-0 bg-gray-900 bg-opacity-95"></div>
     <Transition name="fade">
       <div v-if="isFullscreen">
-        <div class="absolute inset-0 bg-yellow-400 bg-opacity-20 z-10"></div>
+        <div class="absolute inset-0 bg-yellow-200 bg-opacity-10 z-10"></div>
         <div class="absolute inset-0 bg-gray-900 bg-opacity-95"></div>
       </div>
     </Transition>
-
 
     <!-- ポップアップコンテンツ -->
     <div class="relative bg-white rounded-lg shadow-xl max-w-4xl w-full max-w-[720px] max-h-[90vh] overflow-y-auto z-20" @click.stop>
