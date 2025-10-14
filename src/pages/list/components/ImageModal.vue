@@ -1,13 +1,18 @@
 <template>
   <!-- ポップアップモーダル -->
   <div v-if="isVisible" class="fixed inset-0 z-50 flex items-center justify-center p-4" @click="closeModal">
+    
     <!-- 背景オーバーレイ -->
     <div class="absolute inset-0 bg-gray-900 bg-opacity-95"></div>
+    <Transition name="fade">
+      <div v-if="isFullscreen" class="absolute inset-0 bg-yellow-400 bg-opacity-20"></div>
+    </Transition>
     
     <!-- ポップアップコンテンツ -->
     <div class="relative bg-white rounded-lg shadow-xl max-w-4xl w-full max-w-[720px] max-h-[90vh] overflow-y-auto" @click.stop>
+      
       <!-- ヘッダー（閉じるボタン） -->
-      <div class="flex justify-end p-4">
+      <div  v-if="!isFullscreen" class="flex justify-end p-4">
         <button @click="closeModal" class="text-gray-500 hover:text-gray-700 transition-colors">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -104,6 +109,7 @@
         </button>
       </div>
     </div>
+    
   </div>
 </template>
 
@@ -226,3 +232,16 @@ onMounted(() => {
   })
 })
 </script>
+
+<style scoped>
+/* フェード効果の定義 */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>
