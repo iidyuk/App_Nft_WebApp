@@ -1,6 +1,6 @@
 <template>
   <div class="max-w-2xl mx-auto mt-20 p-8 bg-white rounded-lg shadow">
-    <h1 class="text-3xl font-bold text-blue-600 mb-6">Pinata API Connection Test</h1>
+    <h1 class="text-3xl font-bold text-green-600 mb-6">Pinata API Connection Test</h1>
     
     <!-- API接続チェック -->
     <div class="mb-6 p-6 bg-gray-50 rounded-lg">
@@ -8,7 +8,7 @@
       <button
         @click="testConnection"
         :disabled="isTesting"
-        class="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white font-semibold py-2 px-6 rounded transition"
+        class="bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white font-semibold py-2 px-6 rounded transition"
       >
         {{ isTesting ? 'Testing...' : 'Test API Connection' }}
       </button>
@@ -36,7 +36,7 @@
       <button
         @click="testJSONUpload"
         :disabled="isJSONUploading || !metadataJSON"
-        class="bg-purple-500 hover:bg-purple-600 disabled:bg-gray-400 text-white font-semibold py-2 px-6 rounded transition"
+        class="bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white font-semibold py-2 px-6 rounded transition"
       >
         {{ isJSONUploading ? 'Uploading...' : 'Upload JSON Metadata' }}
       </button>
@@ -45,7 +45,7 @@
         <h3 class="font-semibold mb-2">{{ jsonUploadResult.message }}</h3>
         <div v-if="jsonUploadResult.success" class="text-sm">
           <p><strong>IPFS Hash:</strong> {{ jsonUploadResult.hash }}</p>
-          <p><strong>URL:</strong> <a :href="jsonUploadResult.url" target="_blank" class="text-blue-600 hover:underline">{{ jsonUploadResult.url }}</a></p>
+          <p><strong>URL:</strong> <a :href="jsonUploadResult.url" target="_blank" class="text-green-600 hover:underline">{{ jsonUploadResult.url }}</a></p>
         </div>
         <div v-if="!jsonUploadResult.success" class="text-sm">
           <p><strong>エラー:</strong> {{ jsonUploadResult.error }}</p>
@@ -72,7 +72,7 @@
     </div>
 
     <div class="mt-8">
-      <NuxtLink to="/" class="inline-block bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded transition">トップページへ</NuxtLink>
+      <NuxtLink to="/" class="inline-block bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded transition">トップページへ</NuxtLink>
     </div>
   </div>
 </template>
