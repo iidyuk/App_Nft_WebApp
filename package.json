@@ -7,11 +7,7 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare",
-    "supabase:start": "SUPABASE_CONFIG_PATH=src/lib/external/supabase/config.toml supabase start",
-    "supabase:stop": "SUPABASE_CONFIG_PATH=src/lib/external/supabase/config.toml supabase stop",
-    "supabase:db:push": "SUPABASE_CONFIG_PATH=src/lib/external/supabase/config.toml supabase db push",
-    "supabase:migration:new": "SUPABASE_CONFIG_PATH=src/lib/external/supabase/config.toml supabase migration new"
+    "postinstall": "nuxt prepare"
   },
   "dependencies": {
     "@nuxt/eslint": "^1.5.2",

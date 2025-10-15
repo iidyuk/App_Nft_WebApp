@@ -1,5 +1,5 @@
 -- Migration: Create NFT application tables
--- Created: 2024-01-01
+-- Created: 2025-10-15 04:27:27
 -- Description: Initial schema for NFT application
 
 -- UUID generation is handled by gen_random_uuid() (built-in function)
@@ -9,7 +9,6 @@ CREATE TABLE IF NOT EXISTS users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   auth_user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   email TEXT NOT NULL,
-  wallet_address TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -62,3 +61,4 @@ COMMENT ON TABLE users IS 'User profiles linked to Supabase auth';
 COMMENT ON TABLE images IS 'Uploaded images stored in Supabase storage';
 COMMENT ON TABLE metadata IS 'NFT metadata stored on Pinata IPFS';
 COMMENT ON TABLE tokens IS 'Minted NFT tokens on blockchain';
+
