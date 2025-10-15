@@ -14,20 +14,26 @@ export const useSupabaseUpload = () => {
       uploadError.value = null
       // uploadProgress.value = 0
 
+      // 現在のユーザーIDを取得
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        throw new Error('ユーザーが認証されていません')
+      }
+
       // ファイル拡張子をチェック
       const fileExtension = file.name.split('.').at(-1)?.toLowerCase()
       if (fileExtension !== 'jpg' && fileExtension !== 'jpeg' && fileExtension !== 'png') {
         throw new Error('JPG/JPEG/PNGファイルのみアップロード可能です')
       }
 
-      // uploadsフォルダ内にファイルをアップロード
+      // ユーザーIDフォルダ内にファイルをアップロード
       const now = new Date()
       const timestamp = now.getFullYear().toString() +
         (now.getMonth() + 1).toString().padStart(2, '0') +
         now.getDate().toString().padStart(2, '0') + '-' +
         now.getHours().toString().padStart(2, '0') +
         now.getMinutes().toString().padStart(2, '0')
-      const fileName = `uploads/${timestamp}_${file.name}`
+      const fileName = `${user.id}/${timestamp}_${file.name}`
 
       // Supabase Storageにアップロード
       const { error } = await supabase.storage
