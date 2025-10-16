@@ -44,11 +44,9 @@ export default defineNuxtConfig({
   app: {
     head: {
       charset: 'utf-16',
-      // charset: 'utf-8',
       viewport: 'width=device-width',
       title: 'nft app',
       link: [
-        // { rel: "icon", type: "image/png", href: "/icon.png" },
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
       ],
       htmlAttrs: {
