@@ -63,18 +63,30 @@
             class="absolute bottom-2 right-2 bg-white rounded-full p-1.5 shadow-lg"
             :title="`Minted on ${getChainForImage(image.name)}`"
           >
-            <img 
-              v-if="getChainForImage(image.name) === 'sepolia'"
-              src="https://cryptologos.cc/logos/ethereum-eth-logo.svg"
-              alt="Ethereum"
+            <!-- Ethereum / Sepolia -->
+            <svg 
+              v-if="getChainForImage(image.name) === 'ethereum' || getChainForImage(image.name) === 'sepolia'"
               class="w-6 h-6"
-            />
-            <img 
+              viewBox="0 0 256 417"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path fill="#343434" d="m127.961 0-2.795 9.5v275.668l2.795 2.79 127.962-75.638z"/>
+              <path fill="#8C8C8C" d="M127.962 0 0 212.32l127.962 75.639V154.158z"/>
+              <path fill="#3C3C3B" d="m127.961 312.187-1.575 1.92v98.199l1.575 4.6L256 236.587z"/>
+              <path fill="#8C8C8C" d="M127.962 416.905v-104.72L0 236.585z"/>
+              <path fill="#141414" d="m127.961 287.958 127.96-75.637-127.96-58.162z"/>
+              <path fill="#393939" d="m.001 212.321 127.96 75.637V154.159z"/>
+            </svg>
+            <!-- Polygon -->
+            <svg 
               v-else-if="getChainForImage(image.name) === 'polygon'"
-              src="https://cryptologos.cc/logos/polygon-matic-logo.svg"
-              alt="Polygon"
               class="w-6 h-6"
-            />
+              viewBox="0 0 38.4 33.5"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path fill="#8247E5" d="M29,10.2c-0.7-0.4-1.6-0.4-2.4,0L21,13.5l-3.8,2.1l-5.5,3.3c-0.7,0.4-1.6,0.4-2.4,0L5,16.3 c-0.7-0.4-1.2-1.2-1.2-2.1v-5c0-0.8,0.4-1.6,1.2-2.1l4.3-2.5c0.7-0.4,1.6-0.4,2.4,0L16,7.2c0.7,0.4,1.2,1.2,1.2,2.1v3.3l3.8-2.2V7 c0-0.8-0.4-1.6-1.2-2.1l-8-4.7c-0.7-0.4-1.6-0.4-2.4,0L1.2,5C0.4,5.4,0,6.2,0,7v9.4c0,0.8,0.4,1.6,1.2,2.1l8.1,4.7 c0.7,0.4,1.6,0.4,2.4,0l5.5-3.2l3.8-2.2l5.5-3.2c0.7-0.4,1.6-0.4,2.4,0l4.3,2.5c0.7,0.4,1.2,1.2,1.2,2.1v5c0,0.8-0.4,1.6-1.2,2.1 L29,28.8c-0.7,0.4-1.6,0.4-2.4,0l-4.3-2.5c-0.7-0.4-1.2-1.2-1.2-2.1V21l-3.8,2.2v3.3c0,0.8,0.4,1.6,1.2,2.1l8.1,4.7 c0.7,0.4,1.6,0.4,2.4,0l8.1-4.7c0.7-0.4,1.2-1.2,1.2-2.1V17c0-0.8-0.4-1.6-1.2-2.1L29,10.2z"/>
+            </svg>
+            <!-- その他 -->
             <div 
               v-else
               class="w-6 h-6 flex items-center justify-center text-xs font-bold text-gray-700"
