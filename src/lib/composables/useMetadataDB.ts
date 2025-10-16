@@ -7,21 +7,39 @@ export const useMetadataDB = () => {
   const supabase = supabaseConfig()
 
   /**
-   * 画像パスからimagesテーブルのIDを取得
-   * @param imagePath - Storage内の画像パス
+   * 画像パス（またはファイル名）からimagesテーブルのIDを取得
+   * @param imagePath - Storage内の画像パスまたはファイル名
    */
   const getImageIdByPath = async (imagePath: string) => {
     try {
-      const { data, error } = await supabase
+      console.log('🔍 画像ID検索開始:', imagePath)
+      
+      // まずfile_nameで検索（ファイル名のみの場合）
+      let { data, error } = await supabase
         .from('images')
         .select('id')
-        .eq('image_path', imagePath)
+        .eq('file_name', imagePath)
         .single()
 
+      // file_nameで見つからなければimage_pathで検索（フルパスの場合）
+      if (error && error.code === 'PGRST116') {
+        console.log('file_nameで見つからなかったため、image_pathで再検索')
+        const result = await supabase
+          .from('images')
+          .select('id')
+          .eq('image_path', imagePath)
+          .single()
+        
+        data = result.data
+        error = result.error
+      }
+
       if (error) {
+        console.error('❌ 画像ID検索エラー:', error)
         throw error
       }
 
+      console.log('✅ 画像ID取得成功:', data?.id)
       return { success: true, imageId: data?.id }
     } catch (error) {
       console.error('画像ID取得エラー:', error)

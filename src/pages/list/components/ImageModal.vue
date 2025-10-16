@@ -128,8 +128,7 @@
         </button>
         <button 
           @click="handleRegister"
-          class="px-4 py-2 bg-gray-400 text-white rounded-lg transition-colors "
-          disabled
+          class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors"
         >
           Register
         </button>
@@ -169,14 +168,13 @@ const emit = defineEmits<{
 }>()
 
 // Composables
-const { getImageDetails, fetchMetadataFromPinata } = useImageDetails()
+const { getImageDetails } = useImageDetails()
 
 // フルスクリーン表示の状態管理
 const isFullscreen = ref(false)
 
 // 画像詳細情報の状態管理
 const imageDetails = ref<any>(null)
-const pinataMetadata = ref<any>(null)
 const isLoadingDetails = ref(false)
 
 // Methods
@@ -213,35 +211,17 @@ const handleRegister = () => {
   }
 }
 
-// DBから画像詳細情報を取得
+// DBから画像詳細情報を取得（Pinataは呼び出さない）
 const loadImageDetails = async (fileName: string) => {
   isLoadingDetails.value = true
   imageDetails.value = null
-  pinataMetadata.value = null
 
   try {
-    // DBから画像詳細を取得
+    // DBから画像詳細を取得（metadata + tokensを含む）
     const result = await getImageDetails(fileName)
     
     if (result.success && result.details) {
       imageDetails.value = result.details
-      
-      // Pinataからメタデータを取得（metadataは配列で返されるので最初の要素を取得）
-      let metadata = null
-      if (result.details.metadata) {
-        if (Array.isArray(result.details.metadata) && result.details.metadata.length > 0) {
-          metadata = result.details.metadata[0]
-        } else if (!Array.isArray(result.details.metadata)) {
-          metadata = result.details.metadata
-        }
-      }
-      
-      if (metadata && 'pinata_url' in metadata && metadata.pinata_url) {
-        const metadataResult = await fetchMetadataFromPinata(metadata.pinata_url)
-        if (metadataResult.success) {
-          pinataMetadata.value = metadataResult.metadata
-        }
-      }
     }
   } catch (error) {
     console.error('画像詳細の読み込みエラー:', error)
@@ -254,14 +234,9 @@ const loadImageDetails = async (fileName: string) => {
 const getDescription = (image: ImageFile | null) => {
   if (!image) return 'No description available'
   
-  // まずDBから取得したdescriptionを確認
+  // DBから取得したdescriptionを表示
   if (imageDetails.value?.description) {
     return imageDetails.value.description
-  }
-  
-  // DBにない場合、Pinataメタデータからdescriptionを取得
-  if (pinataMetadata.value?.description) {
-    return pinataMetadata.value.description
   }
   
   return 'No description available'
@@ -331,6 +306,8 @@ watch(() => props.isVisible, (isVisible) => {
     }
   } else {
     enableBodyScroll()
+    // モーダルを閉じたときに状態をリセット
+    imageDetails.value = null
   }
 })
 

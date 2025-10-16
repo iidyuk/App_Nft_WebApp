@@ -101,13 +101,16 @@
 
   // メタデータアップロード処理
   const handleUploadMetadata = async () => {
+    console.log('🚀 handleUploadMetadata開始')
+    console.log('uploadedImageInfo:', props.uploadedImageInfo)
 
     if (!props.uploadedImageInfo) {
-      console.error('画像情報がありません')
+      console.error('❌ 画像情報がありません')
       emitStatusMessage('画像情報がありません', 'error')
       return
     }
 
+    console.log('✅ 画像情報あり、アップロード処理を続行')
     isUploading.value = true  // アップロード状態
     uploadResult.value = null  // Pinataへのアップロードデータ用
     emitStatusMessage('メタデータをPINATAにアップロード中...', 'info')
@@ -117,10 +120,12 @@
       // NFTメタデータを生成
       // const nftMetadata = generateNFTMetadata(props.uploadedImageInfo, props.customMetadata)
       const nftMetadata = generateNFTMetadata(props.uploadedImageInfo)  // メタデータ生成
-      // console.log('生成されたNFTメタデータ:', nftMetadata)
+      console.log('生成されたNFTメタデータ:', nftMetadata)
 
       // PINATAにアップロード
+      console.log('Pinataへアップロード開始...')
       const result = await uploadMetadataToPinata(nftMetadata, props.uploadedImageInfo.fileName)
+      console.log('Pinataアップロード完了:', result)
       uploadResult.value = result  // Pinataへのアップロードデータ
       
       console.log('メタデータアップロード結果:', result)
@@ -159,8 +164,15 @@
 
   // メタデータアップロード要求の監視
   watch(() => props.uploadRequested, (requested) => {
+    console.log('🔔 MetadataUploader: uploadRequested変更を検知')
+    console.log('requested:', requested)
+    console.log('uploadedImageInfo:', props.uploadedImageInfo)
     if (requested && props.uploadedImageInfo) {
+      console.log('✅ メタデータアップロード処理を開始します')
       handleUploadMetadata()
+    } else {
+      if (!requested) console.log('❌ requestedがfalseです')
+      if (!props.uploadedImageInfo) console.log('❌ uploadedImageInfoがありません')
     }
   })
 

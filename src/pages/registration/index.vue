@@ -21,6 +21,7 @@
 
     <!-- 画像選択・アップロード用コンポーネント @はv-on :はv-bind -->
     <ImageSelector 
+      ref="imageSelectorRef"
       @image-selected="handleImageSelected"
     >
       <template #upload-section>
@@ -29,6 +30,8 @@
           :selected-file="selectedFile"
           :selected-file-name="selectedFileName"
           :is-metadata-uploaded="!!metadataUploadResult?.success"
+          :has-existing-metadata="hasExistingMetadata"
+          :is-already-uploaded="isFromListPage"
           @image-uploaded="handleImageUploaded"
           @status-message="handleStatusMessage"
           @metadata-upload-requested="handleMetadataUploadRequested"
@@ -64,7 +67,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue'
+  import { ref, onMounted } from 'vue'
   import ImageSelector from './components/ImageSelector.vue'
   import ImageUploader from './components/ImageUploader.vue'
   import MetadataUploader from './components/MetadataUploader.vue'
@@ -73,6 +76,8 @@
 
   // composables
   const { saveMetadataByImagePath } = useMetadataDB()
+  const { getImageDetails } = useImageDetails()
+  const route = useRoute()
 
   // 認証が必要なページとして設定
   definePageMeta({
@@ -89,6 +94,9 @@
   const statusMessageType = ref<'success' | 'error' | 'info'>('info')  // ステータスメッセージのタイプ
   const metadataUploadRequested = ref<boolean>(false)  // メタデータアップロード要求フラグ
   const nftCreationRequested = ref<boolean>(false)  // NFT作成要求フラグ
+  const imageSelectorRef = ref<InstanceType<typeof ImageSelector> | null>(null)  // ImageSelectorコンポーネントへの参照
+  const hasExistingMetadata = ref<boolean>(false)  // DBに既存メタデータがあるかどうか
+  const isFromListPage = ref<boolean>(false)  // Listページから遷移したかどうか
 
   // ステップ情報の定義
   const steps = ref([
@@ -138,9 +146,12 @@
 
   // メタデータアップロード要求の処理
   const handleMetadataUploadRequested = () => {
+    console.log('📤 メタデータアップロード要求を受信')
+    console.log('uploadedImageInfo:', uploadedImageInfo.value)
     metadataUploadRequested.value = true
     // ステップ2をアクティブにする
     steps.value[1].isActive = true
+    console.log('metadataUploadRequested:', metadataUploadRequested.value)
   }
 
   // メタデータアップロード完了時の処理
@@ -149,14 +160,18 @@
     metadataUploadRequested.value = false  // 要求フラグをリセット
     
     if (result.success && result.hash && result.url && uploadedImageInfo.value) {
-      console.log('メタデータアップロード成功、DBに保存中...')
+      console.log('✅ メタデータアップロード成功、DBに保存中...')
+      console.log('保存するファイル名:', uploadedImageInfo.value.fileName)
+      console.log('Pinata CID:', result.hash)
+      console.log('Pinata URL:', result.url)
       
       // DBにメタデータを保存
       const dbResult = await saveMetadataByImagePath(
-        uploadedImageInfo.value.fileName,  // image_path（Storage内のパス）
+        uploadedImageInfo.value.fileName,  // ファイル名（file_name）
         result.hash,  // pinata_cid
         result.url    // pinata_url
       )
+      console.log('DB保存結果:', dbResult)
       
       if (dbResult.success) {
         console.log('メタデータをDBに保存しました')
@@ -201,6 +216,116 @@
         return 'bg-gray-100 border border-gray-400 text-gray-700'
     }
   }
+
+  // URLからFileオブジェクトを作成
+  const createFileFromUrl = async (url: string, fileName: string): Promise<File | null> => {
+    try {
+      const response = await fetch(url)
+      const blob = await response.blob()
+      return new File([blob], fileName, { type: blob.type })
+    } catch (error) {
+      console.error('画像の読み込みエラー:', error)
+      return null
+    }
+  }
+
+  // クエリパラメータから画像情報を読み込み
+  const loadImageFromQuery = async () => {
+    const fromList = route.query.fromList as string
+    const imageUrl = route.query.imageUrl as string
+    const imageName = route.query.imageName as string
+
+    if (fromList === 'true' && imageUrl && imageName) {
+      console.log('Listページから画像情報を受け取りました:', imageName)
+      isFromListPage.value = true
+      hasExistingMetadata.value = false  // 初期状態にリセット
+      
+      // 画像をFileオブジェクトに変換
+      const file = await createFileFromUrl(imageUrl, imageName)
+      if (!file) {
+        handleStatusMessage('画像の読み込みに失敗しました', 'error')
+        return
+      }
+
+      // ImageSelectorの状態を更新
+      if (imageSelectorRef.value) {
+        imageSelectorRef.value.selectedImage = imageUrl
+        imageSelectorRef.value.selectedFileName = imageName
+        imageSelectorRef.value.selectedFile = file
+      }
+
+      // 画像選択ハンドラーを呼び出す
+      handleImageSelected(file, imageUrl)
+
+      // Listページから遷移した場合、画像は既にSupabaseにアップロード済み
+      // DBから画像情報を取得
+      const supabase = supabaseConfig()
+      const { data: imageData } = await supabase
+        .from('images')
+        .select('description')
+        .eq('file_name', imageName)
+        .single()
+      
+      // アップロード済み状態として設定（メタデータの有無に関わらず）
+      uploadedImageInfo.value = { 
+        url: imageUrl, 
+        fileName: imageName,
+        description: imageData?.description || undefined
+      }
+      
+      // ステップ2をアクティブにする（画像アップロード完了済み）
+      steps.value[1].isActive = true
+
+      // DBから既存のメタデータ情報を確認
+      const result = await getImageDetails(imageName)
+      console.log('getImageDetails結果:', result)
+      
+      if (result.success && result.details) {
+        console.log('result.details.metadata:', result.details.metadata)
+        
+        // メタデータが配列で返される場合
+        let metadata = null
+        if (result.details.metadata) {
+          if (Array.isArray(result.details.metadata)) {
+            console.log('metadataは配列です。長さ:', result.details.metadata.length)
+            // 配列の場合、要素があれば最初の要素を取得
+            metadata = result.details.metadata.length > 0 ? result.details.metadata[0] : null
+          } else {
+            console.log('metadataは配列ではありません')
+            // 配列でない場合はそのまま使用
+            metadata = result.details.metadata
+          }
+        }
+
+        console.log('処理後のmetadata:', metadata)
+
+        // metadataが存在し、かつ空のオブジェクトでない場合
+        if (metadata && Object.keys(metadata).length > 0) {
+          hasExistingMetadata.value = true
+          console.log('✅ 既存のメタデータが見つかりました')
+          
+          // メタデータがある場合、ステップ3もアクティブにする
+          if ('pinata_url' in metadata && metadata.pinata_url) {
+            metadataUploadResult.value = {
+              success: true,
+              url: metadata.pinata_url,
+              message: '既存のメタデータが読み込まれました'
+            }
+            steps.value[2].isActive = true
+          }
+        } else {
+          console.log('❌ メタデータはまだアップロードされていません')
+        }
+      } else {
+        console.log('❌ メタデータはまだアップロードされていません（result.detailsなし）')
+      }
+    }
+  }
+
+  // コンポーネントマウント時にクエリパラメータをチェック
+  onMounted(() => {
+    loadImageFromQuery()
+  })
 
   // 環境変数のテスト
   // const config = useRuntimeConfig()

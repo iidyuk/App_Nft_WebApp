@@ -169,7 +169,16 @@ const handleList = (image: ImageFile) => {
 
 const handleRegister = (image: ImageFile) => {
   console.log('Register clicked for:', image.name)
-  // ここにRegister機能の実装を追加
+  // registrationページへ遷移し、画像情報をクエリパラメータで渡す
+  const router = useRouter()
+  router.push({
+    path: '/registration',
+    query: {
+      imageUrl: image.url,
+      imageName: image.name,
+      fromList: 'true'
+    }
+  })
 }
 
 // 画像のチェーン情報を取得
