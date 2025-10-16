@@ -7,7 +7,9 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "cleanup:metadata": "node scripts/cleanup-orphan-metadata.js",
+    "cleanup:metadata:dry": "node scripts/cleanup-orphan-metadata.js --dry-run"
   },
   "dependencies": {
     "@nuxt/eslint": "^1.5.2",

@@ -70,6 +70,9 @@
   import MetadataUploader from './components/MetadataUploader.vue'
   import NFTMinter from './components/NFTMinter.vue'
 
+  // composables
+  const { saveMetadataByImagePath } = useMetadataDB()
+
   // 認証が必要なページとして設定
   definePageMeta({
     middleware: 'auth'
@@ -127,13 +130,34 @@
   }
 
   // メタデータアップロード完了時の処理
-  const handleMetadataUploaded = (result: { success: boolean; url?: string; hash?: string; message: string; error?: string }) => {
+  const handleMetadataUploaded = async (result: { success: boolean; url?: string; hash?: string; message: string; error?: string }) => {
     metadataUploadResult.value = result
     metadataUploadRequested.value = false  // 要求フラグをリセット
-    if (result.success) {
-      // ステップ3をアクティブにする
+    
+    if (result.success && result.hash && result.url && uploadedImageInfo.value) {
+      console.log('メタデータアップロード成功、DBに保存中...')
+      
+      // DBにメタデータを保存
+      const dbResult = await saveMetadataByImagePath(
+        uploadedImageInfo.value.fileName,  // image_path（Storage内のパス）
+        result.hash,  // pinata_cid
+        result.url    // pinata_url
+      )
+      
+      if (dbResult.success) {
+        console.log('メタデータをDBに保存しました')
+        handleStatusMessage('メタデータをDBに保存しました', 'success')
+        // ステップ3をアクティブにする
+        steps.value[2].isActive = true
+      } else {
+        console.error('メタデータのDB保存に失敗:', dbResult.error)
+        handleStatusMessage(`DB保存エラー: ${dbResult.error}`, 'error')
+      }
+    } else if (result.success) {
+      // ステップ3をアクティブにする（DB保存は行わない）
       steps.value[2].isActive = true
     }
+    
     console.log('メタデータアップロード完了:', result)
   }
 
