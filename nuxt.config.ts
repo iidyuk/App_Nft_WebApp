@@ -43,8 +43,7 @@ export default defineNuxtConfig({
       viewport: 'width=device-width',
       title: 'nft app',
       link: [
-        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
-        { rel: 'shortcut icon', type: 'image/x-icon', href: '/favicon.ico' }
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
       ],
       htmlAttrs: {
         lang: 'ja',
