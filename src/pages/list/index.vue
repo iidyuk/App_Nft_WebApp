@@ -39,6 +39,11 @@
   import Pagination from './components/Pagination.vue'
   import ImageGrid from './components/ImageGrid.vue'
 
+  // 認証が必要なページとして設定
+  definePageMeta({
+    middleware: 'auth'
+  })
+
   // 型定義
   interface ImageFile {
     name: string
@@ -112,11 +117,17 @@
     try {
       console.log('画像一覧取得開始...')
       
-      // SupabaseのStorage-imagesバケット-uploadsフォルダからファイル一覧を取得
+      // 現在のユーザーIDを取得
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        throw new Error('ユーザーが認証されていません')
+      }
+      
+      // SupabaseのStorage-imagesバケット-ユーザーフォルダからファイル一覧を取得
       const { data: files, error: fetchError } = await supabase
         .storage
         .from('images')
-        .list('uploads', { 
+        .list(user.id, { 
           limit: 100,
           sortBy: { column: 'created_at', order: 'desc' }
         })
@@ -135,17 +146,19 @@
       console.log(`取得したファイル数: ${files.length}`)
       console.log('ファイル一覧:', files.map(f => f.name))
 
-      // JPG/JPEGファイルのみをフィルタリング
+      // JPG/JPEG/PNGファイルのみをフィルタリング（sample.pngは除外）
       const imageFiles = files.filter(file => {
         const extension = file.name.split('.').at(-1)?.toLowerCase()
-        return extension === 'jpg' || extension === 'jpeg' || extension === 'png'
+        const isImage = extension === 'jpg' || extension === 'jpeg' || extension === 'png'
+        const isSample = file.name === 'sample.png'
+        return isImage && !isSample
       })
 
       console.log(`画像ファイル数: ${imageFiles.length}`)
 
       // 各ファイルのパブリックURLを生成
       images.value = imageFiles.map(file => {
-        const filePath = `uploads/${file.name}`
+        const filePath = `${user.id}/${file.name}`
         const { data: urlData } = supabase
           .storage
           .from('images')

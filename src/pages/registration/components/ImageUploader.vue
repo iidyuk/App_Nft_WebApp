@@ -3,9 +3,9 @@
     <!-- Supabaseアップロードボタン -->
       <button
         @click="handleUpload"
-        :disabled="isUploading || isUploaded"
+        :disabled="isUploading || isUploaded || isAlreadyUploaded"
         class="group disabled:bg-gray-300 text-white font-semibold py-2 px-2 rounded transition relative overflow-hidden w-32 sm:w-40"
-        :class="isUploaded ? 'bg-gray-400' : 'bg-green-500 hover:bg-green-600'"
+        :class="(isUploaded || isAlreadyUploaded) ? 'bg-gray-400' : 'bg-green-500 hover:bg-green-600'"
       >
         <span class="block transition-transform duration-300 group-hover:-translate-y-[150%]">
           Upload Image
@@ -18,9 +18,9 @@
     <!-- Upload Metadataボタン -->
      <button
        @click="handleMetadataUpload"
-       :disabled="!isUploaded || isMetadataUploaded"
+       :disabled="(!isUploaded && !isAlreadyUploaded) || isMetadataUploaded || hasExistingMetadata"
        class="group disabled:bg-gray-300 text-white font-semibold py-2 px-2 rounded transition relative overflow-hidden w-32 sm:w-40"
-       :class="isMetadataUploaded ? 'bg-gray-400' : (isUploaded ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-300')"
+       :class="(isMetadataUploaded || hasExistingMetadata) ? 'bg-gray-400' : ((isUploaded || isAlreadyUploaded) ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-300')"
      >
        <span class="block transition-transform duration-300 group-hover:-translate-y-[150%]">
          Upload Metadata
@@ -33,9 +33,9 @@
     <!-- Create NFTボタン -->
     <button
       @click="handleCreateNFT"
-      :disabled="!isMetadataUploaded || isNFTCreated"
+      :disabled="!isMetadataUploaded || isNftCreated"
       class="group disabled:bg-gray-300 text-white font-semibold py-2 px-2 rounded transition relative overflow-hidden w-32 sm:w-40"
-      :class="isNFTCreated ? 'bg-gray-400' : (isMetadataUploaded ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-300')"
+      :class="isNftCreated ? 'bg-gray-400' : (isMetadataUploaded ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-300')"
     >
       <span class="block transition-transform duration-300 group-hover:-translate-y-[150%]">
         Mint NFT
@@ -62,7 +62,9 @@
     selectedFile: File | null
     selectedFileName: string
     isMetadataUploaded?: boolean  // メタデータアップロード完了状態
-    isNFTCreated?: boolean  // NFT作成完了状態
+    isNftCreated?: boolean  // NFT作成完了状態（ケーシング修正）
+    hasExistingMetadata?: boolean  // DBに既存メタデータがあるかどうか
+    isAlreadyUploaded?: boolean  // 既にSupabaseにアップロード済みかどうか（Listページから遷移した場合）
   }>()
 
   // emit（親コンポーネントに渡すデータ）の設定
@@ -76,7 +78,9 @@
   // アップロード状態の計算プロパティ
   const isUploaded = computed(() => !!uploadedImageUrl.value)
   const isMetadataUploaded = computed(() => props.isMetadataUploaded || false)
-  const isNFTCreated = computed(() => props.isNFTCreated || false)
+  const isNftCreated = computed(() => props.isNftCreated || false)
+  const hasExistingMetadata = computed(() => props.hasExistingMetadata || false)
+  const isAlreadyUploaded = computed(() => props.isAlreadyUploaded || false)
 
   // ステータスメッセージをemitする関数
   const emitStatusMessage = (message: string, type: 'success' | 'error' | 'info') => {
@@ -101,7 +105,10 @@
 
   // メタデータアップロード要求の処理
   const handleMetadataUpload = () => {
-    if (!isUploaded.value) return
+    // アップロード済み、または既にSupabaseにアップロード済みの場合のみ実行
+    if (!isUploaded.value && !isAlreadyUploaded.value) {
+      return
+    }
     emit('metadataUploadRequested')  // 親コンポーネントにメタデータアップロード要求を通知
   }
 

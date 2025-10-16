@@ -46,7 +46,6 @@ export const checkPinataConnection = async () => {
 // JSONメタデータをPinataにアップロードする関数
 export const uploadMetadataToPinata = async (metadata: any, fileName?: string) => {
   try {
-
     // 環境変数の取得・チェック
     const config = useRuntimeConfig()
     const pinataJWTKey = config.public.pinataJWTKey
@@ -78,6 +77,7 @@ export const uploadMetadataToPinata = async (metadata: any, fileName?: string) =
       },
       body: JSON.stringify(requestBody)
     })
+    
     // エラーハンドリング
     if (!response.ok) {
       const errorData = await response.json()

@@ -4,6 +4,13 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   srcDir: 'src/',
 
+  // ディレクトリの設定
+  dir: {
+    middleware: 'lib/middleware',
+    layouts: 'layout',
+    assets: 'lib/assets'
+  },
+
   // composablesディレクトリの設定
   imports: {
     dirs: [
@@ -36,7 +43,7 @@ export default defineNuxtConfig({
       viewport: 'width=device-width',
       title: 'nft app',
       link: [
-        { rel: 'icon', type: 'image/png', href: '/favicon.png' },
+        // { rel: 'icon', type: 'image/png', href: '/favicon.png' },
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
         { rel: 'shortcut icon', type: 'image/x-icon', href: '/favicon.ico' }
       ],

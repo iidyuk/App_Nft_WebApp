@@ -37,6 +37,7 @@
   interface UploadedImageInfo {
     url: string
     fileName: string
+    description?: string
   }
 
   interface MetadataUploadResult {
@@ -79,7 +80,7 @@
   const generateNFTMetadata = (imageInfo: UploadedImageInfo) => {
     const baseMetadata = {
       name: imageInfo.fileName || "Untitled NFT",
-      description: `A unique NFT created from ${imageInfo.fileName} and uploaded via Pinata.`,
+      description: imageInfo.description,
       image: imageInfo.url,
       attributes: [
         // {
@@ -100,9 +101,7 @@
 
   // メタデータアップロード処理
   const handleUploadMetadata = async () => {
-
     if (!props.uploadedImageInfo) {
-      console.error('画像情報がありません')
       emitStatusMessage('画像情報がありません', 'error')
       return
     }
@@ -110,19 +109,15 @@
     isUploading.value = true  // アップロード状態
     uploadResult.value = null  // Pinataへのアップロードデータ用
     emitStatusMessage('メタデータをPINATAにアップロード中...', 'info')
-    // emit('uploadStarted')
 
     try {
       // NFTメタデータを生成
-      // const nftMetadata = generateNFTMetadata(props.uploadedImageInfo, props.customMetadata)
       const nftMetadata = generateNFTMetadata(props.uploadedImageInfo)  // メタデータ生成
-      // console.log('生成されたNFTメタデータ:', nftMetadata)
 
       // PINATAにアップロード
       const result = await uploadMetadataToPinata(nftMetadata, props.uploadedImageInfo.fileName)
       uploadResult.value = result  // Pinataへのアップロードデータ
       
-      console.log('メタデータアップロード結果:', result)
       emit('metadataUploaded', result)
       
       if (result.success) {
