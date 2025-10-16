@@ -11,7 +11,7 @@
               @click="handleLogout"
               class="text-sm text-green-600 hover:text-green-800 underline"
             >
-              Log out
+              Sign out
             </button>
           </div>
         </div>
