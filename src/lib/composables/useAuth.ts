@@ -93,7 +93,7 @@ export const useAuth = () => {
       
       // ログアウトイベントが発生した場合、ログインページにリダイレクト
       if (event === 'SIGNED_OUT') {
-        await navigateTo('/auth/login')
+        await navigateTo('/auth/signin')
       }
     })
   }

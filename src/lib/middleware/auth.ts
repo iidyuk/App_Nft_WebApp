@@ -15,6 +15,6 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   
   // セッションが存在しない場合、ログインページにリダイレクト
   if (!session || error) {
-    return navigateTo('/auth/login')
+    return navigateTo('/auth/signin')
   }
 })
