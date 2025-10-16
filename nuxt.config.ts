@@ -4,6 +4,10 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   srcDir: 'src/',
 
+  nitro: {
+    preset: 'netlify'
+  },
+
   // ディレクトリの設定
   dir: {
     middleware: 'lib/middleware',
