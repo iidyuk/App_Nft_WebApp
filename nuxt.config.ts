@@ -49,7 +49,7 @@ export default defineNuxtConfig({
       title: 'nft app',
       link: [
         // { rel: "icon", type: "image/png", href: "/icon.png" },
-        { rel: 'icon', type: 'image/x-icon', href: '/icon.ico' }
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
       ],
       htmlAttrs: {
         lang: 'ja',
