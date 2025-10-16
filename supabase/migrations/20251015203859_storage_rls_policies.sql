@@ -1,9 +1,14 @@
--- Migration: Setup Storage RLS policies for user-specific folders
+-- Migration: Setup RLS policies for Storage and images table
 -- Created: 2025-10-15 20:38:59
--- Description: Configure Row Level Security policies for images bucket to restrict access to user-specific folders
+-- Updated: 2025-10-16
+-- Description: Configure Row Level Security policies for Storage bucket and images table
 
--- Enable RLS on storage.objects table (if not already enabled)
-ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
+-- Note: RLS is already enabled on storage.objects by default in Supabase
+-- Drop existing policies if they exist to ensure idempotency
+DROP POLICY IF EXISTS "Users can view their own files" ON storage.objects;
+DROP POLICY IF EXISTS "Users can insert files into their own folder" ON storage.objects;
+DROP POLICY IF EXISTS "Users can update their own files" ON storage.objects;
+DROP POLICY IF EXISTS "Users can delete their own files" ON storage.objects;
 
 -- Policy: Users can view their own files
 -- ユーザーは自分のフォルダ内のファイルのみ閲覧可能
@@ -49,12 +54,60 @@ USING (
   (storage.foldername(name))[1] = auth.uid()::text
 );
 
--- Grant necessary permissions for authenticated users
-GRANT SELECT, INSERT, UPDATE, DELETE ON storage.objects TO authenticated;
+-- =====================================================
+-- RLS Policies for images table
+-- =====================================================
 
--- Comments for documentation
-COMMENT ON POLICY "Users can view their own files" ON storage.objects IS 'Allows authenticated users to view files in their own folder';
-COMMENT ON POLICY "Users can insert files into their own folder" ON storage.objects IS 'Allows authenticated users to upload files to their own folder';
-COMMENT ON POLICY "Users can update their own files" ON storage.objects IS 'Allows authenticated users to update files in their own folder';
-COMMENT ON POLICY "Users can delete their own files" ON storage.objects IS 'Allows authenticated users to delete files from their own folder';
+-- Enable RLS on images table
+ALTER TABLE public.images ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Users can view their own images" ON public.images;
+DROP POLICY IF EXISTS "Users can insert their own images" ON public.images;
+DROP POLICY IF EXISTS "Users can update their own images" ON public.images;
+DROP POLICY IF EXISTS "Users can delete their own images" ON public.images;
+
+-- Policy: Users can view their own images
+CREATE POLICY "Users can view their own images"
+ON public.images FOR SELECT
+TO authenticated
+USING (
+  user_id IN (
+    SELECT id FROM public.users WHERE auth_user_id = auth.uid()
+  )
+);
+
+-- Policy: Users can insert their own images
+CREATE POLICY "Users can insert their own images"
+ON public.images FOR INSERT
+TO authenticated
+WITH CHECK (
+  user_id IN (
+    SELECT id FROM public.users WHERE auth_user_id = auth.uid()
+  )
+);
+
+-- Policy: Users can update their own images
+CREATE POLICY "Users can update their own images"
+ON public.images FOR UPDATE
+TO authenticated
+USING (
+  user_id IN (
+    SELECT id FROM public.users WHERE auth_user_id = auth.uid()
+  )
+)
+WITH CHECK (
+  user_id IN (
+    SELECT id FROM public.users WHERE auth_user_id = auth.uid()
+  )
+);
+
+-- Policy: Users can delete their own images
+CREATE POLICY "Users can delete their own images"
+ON public.images FOR DELETE
+TO authenticated
+USING (
+  user_id IN (
+    SELECT id FROM public.users WHERE auth_user_id = auth.uid()
+  )
+);

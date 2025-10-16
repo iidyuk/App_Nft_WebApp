@@ -33,12 +33,16 @@ export const useSupabaseUpload = () => {
         now.getDate().toString().padStart(2, '0') + '-' +
         now.getHours().toString().padStart(2, '0') +
         now.getMinutes().toString().padStart(2, '0')
-      const fileName = `${user.id}/${timestamp}_${file.name}`
+      
+      // Storage内のフルパス（ユーザーID/タイムスタンプ_ファイル名）
+      const storagePath = `${user.id}/${timestamp}_${file.name}`
+      // DBやPinataで使用するファイル名（タイムスタンプ_ファイル名）
+      const displayFileName = `${timestamp}_${file.name}`
 
       // Supabase Storageにアップロード
       const { error } = await supabase.storage
         .from(bucketName)
-        .upload(fileName, file, {
+        .upload(storagePath, file, {
           cacheControl: '3600',  // キャッシュを3600秒（1時間）保持
           upsert: false  // 同名ファイルが存在する場合、上書きしない
         })
@@ -49,7 +53,7 @@ export const useSupabaseUpload = () => {
       }
 
       // アップロードされたファイルのURLを生成
-      const { data: urlData } = supabase.storage.from(bucketName).getPublicUrl(fileName)
+      const { data: urlData } = supabase.storage.from(bucketName).getPublicUrl(storagePath)
 
       uploadedImageUrl.value = urlData.publicUrl
       // uploadProgress.value = 100
@@ -57,7 +61,7 @@ export const useSupabaseUpload = () => {
       return {
         success: true,
         url: urlData.publicUrl,
-        fileName: fileName
+        fileName: displayFileName  // タイムスタンプ付きファイル名のみ返却
       }
 
     } catch (error) {

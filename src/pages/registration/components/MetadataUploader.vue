@@ -37,6 +37,7 @@
   interface UploadedImageInfo {
     url: string
     fileName: string
+    description?: string
   }
 
   interface MetadataUploadResult {
@@ -79,7 +80,7 @@
   const generateNFTMetadata = (imageInfo: UploadedImageInfo) => {
     const baseMetadata = {
       name: imageInfo.fileName || "Untitled NFT",
-      description: `A unique NFT created from ${imageInfo.fileName} and uploaded via Pinata.`,
+      description: imageInfo.description,
       image: imageInfo.url,
       attributes: [
         // {

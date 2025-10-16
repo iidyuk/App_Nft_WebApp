@@ -47,29 +47,52 @@
 
           <!-- 右側：テキスト情報 -->
           <div class="lg:w-1/2 p-4 space-y-6">
-            <!-- Title -->
-            <div>
-              <h3 class="text-sm font-medium text-gray-500 mb-2">Title</h3>
-              <p class="text-lg font-semibold text-gray-900">{{ image?.name || 'No title' }}</p>
+            <!-- ローディング中 -->
+            <div v-if="isLoadingDetails" class="flex items-center justify-center py-8">
+              <svg class="size-6 animate-spin text-green-600" viewBox="0 0 24 24" fill="none">
+                <circle 
+                  cx="12" 
+                  cy="12" 
+                  r="10" 
+                  stroke="currentColor" 
+                  stroke-width="4" 
+                  class="opacity-25"
+                />
+                <path 
+                  fill="currentColor" 
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  class="opacity-75"
+                />
+              </svg>
+              <p class="ml-2 text-gray-600">Loading...</p>
             </div>
 
-            <!-- Description -->
-            <div>
-              <h3 class="text-sm font-medium text-gray-500 mb-2">Description</h3>
-              <p class="text-gray-700">{{ getDescription(image) }}</p>
-            </div>
+            <!-- データ表示 -->
+            <template v-else>
+              <!-- Title -->
+              <div>
+                <h3 class="text-sm font-medium text-gray-500 mb-2">Title</h3>
+                <p class="text-lg font-semibold text-gray-900">{{ image?.name || 'No title' }}</p>
+              </div>
 
-            <!-- Chain -->
-            <div>
-              <h3 class="text-sm font-medium text-gray-500 mb-2">Chain</h3>
-              <p class="text-gray-700">{{ getChain(image) }}</p>
-            </div>
+              <!-- Description -->
+              <div>
+                <h3 class="text-sm font-medium text-gray-500 mb-2">Description</h3>
+                <p class="text-gray-700">{{ getDescription(image) }}</p>
+              </div>
 
-            <!-- Mint Date -->
-            <div>
-              <h3 class="text-sm font-medium text-gray-500 mb-2"> Date</h3>
-              <p class="text-gray-700">{{ getMintDate(image) }}</p>
-            </div>
+              <!-- Chain -->
+              <div>
+                <h3 class="text-sm font-medium text-gray-500 mb-2">Chain</h3>
+                <p class="text-gray-700">{{ getChain(image) }}</p>
+              </div>
+
+              <!-- Mint Date -->
+              <div>
+                <h3 class="text-sm font-medium text-gray-500 mb-2">Mint Date</h3>
+                <p class="text-gray-700">{{ getMintDate(image) }}</p>
+              </div>
+            </template>
           </div>
         </div>
 
@@ -145,8 +168,16 @@ const emit = defineEmits<{
   'register': [image: ImageFile]
 }>()
 
+// Composables
+const { getImageDetails, fetchMetadataFromPinata } = useImageDetails()
+
 // フルスクリーン表示の状態管理
 const isFullscreen = ref(false)
+
+// 画像詳細情報の状態管理
+const imageDetails = ref<any>(null)
+const pinataMetadata = ref<any>(null)
+const isLoadingDetails = ref(false)
 
 // Methods
 const closeModal = () => {
@@ -182,23 +213,103 @@ const handleRegister = () => {
   }
 }
 
-// データ取得メソッド（サンプルデータ）
+// DBから画像詳細情報を取得
+const loadImageDetails = async (fileName: string) => {
+  isLoadingDetails.value = true
+  imageDetails.value = null
+  pinataMetadata.value = null
+
+  try {
+    // DBから画像詳細を取得
+    const result = await getImageDetails(fileName)
+    
+    if (result.success && result.details) {
+      imageDetails.value = result.details
+      
+      // Pinataからメタデータを取得（metadataは配列で返されるので最初の要素を取得）
+      let metadata = null
+      if (result.details.metadata) {
+        if (Array.isArray(result.details.metadata) && result.details.metadata.length > 0) {
+          metadata = result.details.metadata[0]
+        } else if (!Array.isArray(result.details.metadata)) {
+          metadata = result.details.metadata
+        }
+      }
+      
+      if (metadata && 'pinata_url' in metadata && metadata.pinata_url) {
+        const metadataResult = await fetchMetadataFromPinata(metadata.pinata_url)
+        if (metadataResult.success) {
+          pinataMetadata.value = metadataResult.metadata
+        }
+      }
+    }
+  } catch (error) {
+    console.error('画像詳細の読み込みエラー:', error)
+  } finally {
+    isLoadingDetails.value = false
+  }
+}
+
+// データ取得メソッド
 const getDescription = (image: ImageFile | null) => {
   if (!image) return 'No description available'
-  // 実際のデータに応じて変更
-  return `This is a description for ${image.name}. It contains detailed information about the NFT.`
+  
+  // まずDBから取得したdescriptionを確認
+  if (imageDetails.value?.description) {
+    return imageDetails.value.description
+  }
+  
+  // DBにない場合、Pinataメタデータからdescriptionを取得
+  if (pinataMetadata.value?.description) {
+    return pinataMetadata.value.description
+  }
+  
+  return 'No description available'
 }
 
 const getChain = (image: ImageFile | null) => {
-  if (!image) return 'Unknown'
-  // 実際のデータに応じて変更
-  return 'Ethereum Testnet'
+  if (!image) return '-'
+  
+  // metadataは配列で返されるので最初の要素を取得
+  let metadata = null
+  if (imageDetails.value?.metadata) {
+    if (Array.isArray(imageDetails.value.metadata) && imageDetails.value.metadata.length > 0) {
+      metadata = imageDetails.value.metadata[0]
+    } else if (!Array.isArray(imageDetails.value.metadata)) {
+      metadata = imageDetails.value.metadata
+    }
+  }
+  
+  // トークン情報からchainを取得
+  const tokens = metadata && 'tokens' in metadata ? metadata.tokens : null
+  if (tokens && Array.isArray(tokens) && tokens.length > 0) {
+    return tokens[0].chain || '-'
+  }
+  
+  return '-'
 }
 
 const getMintDate = (image: ImageFile | null) => {
-  if (!image) return 'Unknown'
-  // 実際のデータに応じて変更
-  return new Date(image.created_at).toLocaleDateString('ja-JP')
+  if (!image) return '-'
+  
+  // metadataは配列で返されるので最初の要素を取得
+  let metadata = null
+  if (imageDetails.value?.metadata) {
+    if (Array.isArray(imageDetails.value.metadata) && imageDetails.value.metadata.length > 0) {
+      metadata = imageDetails.value.metadata[0]
+    } else if (!Array.isArray(imageDetails.value.metadata)) {
+      metadata = imageDetails.value.metadata
+    }
+  }
+  
+  // トークン情報からminted_atを取得
+  const tokens = metadata && 'tokens' in metadata ? metadata.tokens : null
+  if (tokens && Array.isArray(tokens) && tokens.length > 0 && tokens[0].minted_at) {
+    return new Date(tokens[0].minted_at).toLocaleDateString('ja-JP')
+  }
+  
+  // まだミントされていない場合
+  return '-'
 }
 
 // 背景スクロールの制御
@@ -210,10 +321,14 @@ const enableBodyScroll = () => {
   document.body.style.overflow = ''
 }
 
-// モーダルの表示状態を監視してスクロール制御
+// モーダルの表示状態を監視してスクロール制御とデータ読み込み
 watch(() => props.isVisible, (isVisible) => {
   if (isVisible) {
     disableBodyScroll()
+    // 画像が選択されている場合、詳細情報を読み込む
+    if (props.image?.name) {
+      loadImageDetails(props.image.name)
+    }
   } else {
     enableBodyScroll()
   }

@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS images (
   file_name TEXT NOT NULL,
   file_size BIGINT,
   mime_type TEXT,
+  description TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

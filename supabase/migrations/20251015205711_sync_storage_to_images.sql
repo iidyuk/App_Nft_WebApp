@@ -28,7 +28,8 @@ BEGIN
   -- 例: "a1b2c3d4-e5f6-7890-abcd-ef1234567890/20251015-2100_image.jpg"
   v_auth_user_id := split_part(NEW.name, '/', 1);
   
-  -- ファイル名を抽出（パスの最後の部分）
+  -- ファイル名を抽出（パスの最後の部分: timestamp_filename）
+  -- 例: "20251015-2100_image.jpg"
   v_file_name := split_part(NEW.name, '/', 2);
   
   -- フルパスを保存
@@ -52,6 +53,7 @@ BEGIN
     file_name,
     file_size,
     mime_type,
+    description,
     created_at,
     updated_at
   ) VALUES (
@@ -60,6 +62,7 @@ BEGIN
     v_file_name,
     (NEW.metadata->>'size')::BIGINT,
     (NEW.metadata->>'mimetype')::TEXT,
+    'A unique NFT created from ' || v_file_name || ' and uploaded via Pinata.',
     NOW(),
     NOW()
   );

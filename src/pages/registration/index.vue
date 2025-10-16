@@ -69,6 +69,7 @@
   import ImageUploader from './components/ImageUploader.vue'
   import MetadataUploader from './components/MetadataUploader.vue'
   import NFTMinter from './components/NFTMinter.vue'
+  import { supabaseConfig } from '~/lib/external/supabase'
 
   // composables
   const { saveMetadataByImagePath } = useMetadataDB()
@@ -82,7 +83,7 @@
   const selectedFile = ref<File | null>(null)  // 画像ファイル
   const selectedImageUrl = ref<string>('')  // 画像の一時的なURL
   const selectedFileName = ref<string>('')  // 選択されたファイル名
-  const uploadedImageInfo = ref<{ url: string; fileName: string } | null>(null)  // 画像のURL(supabase)
+  const uploadedImageInfo = ref<{ url: string; fileName: string; description?: string } | null>(null)  // 画像のURL(supabase)
   const metadataUploadResult = ref<{ success: boolean; url?: string; hash?: string; message: string; error?: string } | null>(null)  // メタデータアップロード結果
   const statusMessage = ref<string>('')  // ステータスメッセージ
   const statusMessageType = ref<'success' | 'error' | 'info'>('info')  // ステータスメッセージのタイプ
@@ -107,12 +108,25 @@
   }
 
   // 画像アップロード完了時の処理
-  const handleImageUploaded = (url: string, fileName: string) => {
-    uploadedImageInfo.value = { url, fileName }  // アップロード済みの画像情報
+  const handleImageUploaded = async (url: string, fileName: string) => {
+    // imagesテーブルからdescriptionを取得
+    const supabase = supabaseConfig()
+    const { data: imageData } = await supabase
+      .from('images')
+      .select('description')
+      .eq('file_name', fileName)
+      .single()
+    
+    uploadedImageInfo.value = { 
+      url, 
+      fileName,
+      description: imageData?.description || undefined
+    }  // アップロード済みの画像情報
     // ステップ2をアクティブにする
     steps.value[1].isActive = true
     console.log('画像アップロード完了:', fileName)
     console.log('画像アップロードURL:', url)
+    console.log('画像description:', imageData?.description)
   }
 
   // NFT作成要求の処理
