@@ -81,16 +81,34 @@
                 <p class="text-gray-700">{{ getDescription(image) }}</p>
               </div>
 
-              <!-- Chain -->
-              <div>
-                <h3 class="text-sm font-medium text-gray-500 mb-2">Chain</h3>
-                <p class="text-gray-700">{{ getChain(image) }}</p>
+              <!-- Chain & Mint Date -->
+              <div class="flex flex-col sm:flex-row sm:gap-8">
+                <!-- Chain -->
+                <div class="flex-1">
+                  <h3 class="text-sm font-medium text-gray-500 mb-2">Chain</h3>
+                  <p class="text-gray-700">{{ getChain(image) }}</p>
+                </div>
+
+                <!-- Mint Date -->
+                <div class="flex-1">
+                  <h3 class="text-sm font-medium text-gray-500 mb-2">Mint Date</h3>
+                  <p class="text-gray-700">{{ getMintDate(image) }}</p>
+                </div>
               </div>
 
-              <!-- Mint Date -->
+              <!-- Tx Hash -->
               <div>
-                <h3 class="text-sm font-medium text-gray-500 mb-2">Mint Date</h3>
-                <p class="text-gray-700">{{ getMintDate(image) }}</p>
+                <h3 class="text-sm font-medium text-gray-500 mb-2">Tx Hash</h3>
+                <a 
+                  v-if="getTxHash(image) !== '-'"
+                  :href="getTxHashLink(image)"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="text-blue-600 hover:text-blue-800 hover:underline"
+                >
+                  {{ getTxHashDisplay(image) }}
+                </a>
+                <p v-else class="text-gray-700">-</p>
               </div>
             </template>
           </div>
@@ -285,6 +303,48 @@ const getMintDate = (image: ImageFile | null) => {
   
   // まだミントされていない場合
   return '-'
+}
+
+const getTxHash = (image: ImageFile | null) => {
+  if (!image) return '-'
+  
+  // metadataは配列で返されるので最初の要素を取得
+  let metadata = null
+  if (imageDetails.value?.metadata) {
+    if (Array.isArray(imageDetails.value.metadata) && imageDetails.value.metadata.length > 0) {
+      metadata = imageDetails.value.metadata[0]
+    } else if (!Array.isArray(imageDetails.value.metadata)) {
+      metadata = imageDetails.value.metadata
+    }
+  }
+  
+  // トークン情報からtx_hashを取得
+  const tokens = metadata && 'tokens' in metadata ? metadata.tokens : null
+  
+  if (tokens && Array.isArray(tokens) && tokens.length > 0 && tokens[0].tx_hash) {
+    return tokens[0].tx_hash
+  }
+  
+  // まだミントされていない場合
+  return '-'
+}
+
+const getTxHashDisplay = (image: ImageFile | null) => {
+  const txHash = getTxHash(image)
+  if (txHash === '-') return '-'
+  
+  // 20文字以降は省略
+  if (txHash.length > 20) {
+    return txHash.substring(0, 20) + '...'
+  }
+  return txHash
+}
+
+const getTxHashLink = (image: ImageFile | null) => {
+  const txHash = getTxHash(image)
+  if (txHash === '-') return '#'
+  
+  return `https://sepolia.etherscan.io/tx/${txHash}`
 }
 
 // 背景スクロールの制御
