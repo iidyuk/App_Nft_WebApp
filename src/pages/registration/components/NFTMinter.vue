@@ -54,6 +54,9 @@
     statusMessage: [message: string, type: 'success' | 'error' | 'info']
   }>()
 
+  // composables
+  const { saveTokenByMetadataUrl } = useTokenDB()
+
   const isMintingNFT = ref(false)
   const mintingResult = ref<any>(null)
 
@@ -104,11 +107,45 @@
       console.log(`NFTをミント中... To: ${userAddress}, URI: ${metadataUri}`)
       const transaction = await contract.mint(userAddress, metadataUri)  // NFT発行処理（トランザクション送信）
       console.log('トランザクションを送信しました:', transaction.hash)
-      await transaction.wait() // トランザクションが承認されるのを待つ
+      const receipt = await transaction.wait() // トランザクションが承認されるのを待つ
       console.log('トランザクション承認済み:', transaction.hash)
+      
+      // イベントからtoken_idを取得
+      let tokenId = 'unknown'
+      try {
+        // Transfer イベントを探す（ERC721標準）
+        const transferEvent = receipt.events?.find((e: any) => e.event === 'Transfer')
+        if (transferEvent && transferEvent.args) {
+          // tokenIdは通常3番目の引数（from, to, tokenId）
+          tokenId = transferEvent.args[2]?.toString() || transferEvent.args.tokenId?.toString()
+          console.log('取得したtoken_id:', tokenId)
+        }
+      } catch (error) {
+        console.warn('token_idの取得に失敗:', error)
+      }
+      
+      // DBに保存
+      console.log('NFT情報をDBに保存中...')
+      const dbResult = await saveTokenByMetadataUrl(
+        metadataUri,          // metadata_url
+        tokenId,              // token_id
+        transaction.hash,     // tx_hash
+        CONTRACT_ADDRESS,     // contract_address
+        'sepolia',            // chain（Sepoliaテストネット）
+        userAddress           // minter_address
+      )
+      
+      if (dbResult.success) {
+        console.log('NFT情報をDBに保存しました')
+      } else {
+        console.error('NFT情報のDB保存に失敗:', dbResult.error)
+        emitStatusMessage(`警告: NFT発行は成功しましたが、DB保存に失敗しました`, 'error')
+      }
+      
       mintingResult.value = {
         success: true,
         transactionHash: transaction.hash,
+        tokenId: tokenId,
         message: 'NFTが正常に発行されました！'
       }
       emitStatusMessage('NFTの発行が完了しました', 'success')
