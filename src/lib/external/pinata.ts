@@ -46,15 +46,10 @@ export const checkPinataConnection = async () => {
 // JSONメタデータをPinataにアップロードする関数
 export const uploadMetadataToPinata = async (metadata: any, fileName?: string) => {
   try {
-    console.log('📤 uploadMetadataToPinata開始')
-    console.log('metadata:', metadata)
-    console.log('fileName:', fileName)
-
     // 環境変数の取得・チェック
     const config = useRuntimeConfig()
     const pinataJWTKey = config.public.pinataJWTKey
     if (!pinataJWTKey) {
-      console.error('❌ Pinata JWT Keyが設定されていません')
       return {
         success: false,
         message: 'Pinata JWT Keyが設定されていません',
@@ -72,10 +67,8 @@ export const uploadMetadataToPinata = async (metadata: any, fileName?: string) =
         name: fileName || metadata.name || defaultName
       }
     }
-    console.log('リクエストボディ:', requestBody)
 
     // Pinataへのリクエストを送信
-    console.log('Pinata APIへリクエスト送信中...')
     const response = await fetch('https://api.pinata.cloud/pinning/pinJSONToIPFS', {
       method: 'POST',
       headers: {
@@ -84,12 +77,10 @@ export const uploadMetadataToPinata = async (metadata: any, fileName?: string) =
       },
       body: JSON.stringify(requestBody)
     })
-    console.log('レスポンスステータス:', response.status, response.statusText)
     
     // エラーハンドリング
     if (!response.ok) {
       const errorData = await response.json()
-      console.error('❌ Pinataエラーレスポンス:', errorData)
       throw new Error(`HTTP ${response.status}: ${response.statusText} - ${JSON.stringify(errorData)}`)
     }
 

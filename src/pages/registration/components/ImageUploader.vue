@@ -33,9 +33,9 @@
     <!-- Create NFTボタン -->
     <button
       @click="handleCreateNFT"
-      :disabled="!isMetadataUploaded || isNFTCreated"
+      :disabled="!isMetadataUploaded || isNftCreated"
       class="group disabled:bg-gray-300 text-white font-semibold py-2 px-2 rounded transition relative overflow-hidden w-32 sm:w-40"
-      :class="isNFTCreated ? 'bg-gray-400' : (isMetadataUploaded ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-300')"
+      :class="isNftCreated ? 'bg-gray-400' : (isMetadataUploaded ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-300')"
     >
       <span class="block transition-transform duration-300 group-hover:-translate-y-[150%]">
         Mint NFT
@@ -62,7 +62,7 @@
     selectedFile: File | null
     selectedFileName: string
     isMetadataUploaded?: boolean  // メタデータアップロード完了状態
-    isNFTCreated?: boolean  // NFT作成完了状態
+    isNftCreated?: boolean  // NFT作成完了状態（ケーシング修正）
     hasExistingMetadata?: boolean  // DBに既存メタデータがあるかどうか
     isAlreadyUploaded?: boolean  // 既にSupabaseにアップロード済みかどうか（Listページから遷移した場合）
   }>()
@@ -78,23 +78,9 @@
   // アップロード状態の計算プロパティ
   const isUploaded = computed(() => !!uploadedImageUrl.value)
   const isMetadataUploaded = computed(() => props.isMetadataUploaded || false)
-  const isNFTCreated = computed(() => props.isNFTCreated || false)
+  const isNftCreated = computed(() => props.isNftCreated || false)
   const hasExistingMetadata = computed(() => props.hasExistingMetadata || false)
   const isAlreadyUploaded = computed(() => props.isAlreadyUploaded || false)
-
-  // デバッグ用：ボタンの状態をログ出力
-  watch([isUploaded, isAlreadyUploaded, isMetadataUploaded, hasExistingMetadata], 
-    ([uploaded, alreadyUploaded, metadataUploaded, existingMetadata]) => {
-      console.log('=== ImageUploader ボタン状態 ===')
-      console.log('isUploaded:', uploaded)
-      console.log('isAlreadyUploaded:', alreadyUploaded)
-      console.log('isMetadataUploaded:', metadataUploaded)
-      console.log('hasExistingMetadata:', existingMetadata)
-      console.log('Upload Metadata ボタン disabled:', (!uploaded && !alreadyUploaded) || metadataUploaded || existingMetadata)
-      console.log('================================')
-    }, 
-    { immediate: true }
-  )
 
   // ステータスメッセージをemitする関数
   const emitStatusMessage = (message: string, type: 'success' | 'error' | 'info') => {
@@ -121,10 +107,8 @@
   const handleMetadataUpload = () => {
     // アップロード済み、または既にSupabaseにアップロード済みの場合のみ実行
     if (!isUploaded.value && !isAlreadyUploaded.value) {
-      console.log('画像がアップロードされていません')
       return
     }
-    console.log('メタデータアップロード要求を送信')
     emit('metadataUploadRequested')  // 親コンポーネントにメタデータアップロード要求を通知
   }
 

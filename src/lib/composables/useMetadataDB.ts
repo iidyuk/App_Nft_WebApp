@@ -12,8 +12,6 @@ export const useMetadataDB = () => {
    */
   const getImageIdByPath = async (imagePath: string) => {
     try {
-      console.log('🔍 画像ID検索開始:', imagePath)
-      
       // まずfile_nameで検索（ファイル名のみの場合）
       let { data, error } = await supabase
         .from('images')
@@ -23,7 +21,6 @@ export const useMetadataDB = () => {
 
       // file_nameで見つからなければimage_pathで検索（フルパスの場合）
       if (error && error.code === 'PGRST116') {
-        console.log('file_nameで見つからなかったため、image_pathで再検索')
         const result = await supabase
           .from('images')
           .select('id')
@@ -35,11 +32,9 @@ export const useMetadataDB = () => {
       }
 
       if (error) {
-        console.error('❌ 画像ID検索エラー:', error)
         throw error
       }
 
-      console.log('✅ 画像ID取得成功:', data?.id)
       return { success: true, imageId: data?.id }
     } catch (error) {
       console.error('画像ID取得エラー:', error)

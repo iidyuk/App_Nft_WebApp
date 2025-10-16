@@ -52,6 +52,7 @@
 
   const emit = defineEmits<{
     statusMessage: [message: string, type: 'success' | 'error' | 'info']
+    nftMinted: [result: { success: boolean; transactionHash?: string; tokenId?: string; error?: string }]
   }>()
 
   // composables
@@ -149,6 +150,12 @@
         message: 'NFTが正常に発行されました！'
       }
       emitStatusMessage('NFTの発行が完了しました', 'success')
+      // 親コンポーネントにミント完了を通知
+      emit('nftMinted', {
+        success: true,
+        transactionHash: transaction.hash,
+        tokenId: tokenId
+      })
     } catch (error) {
       console.error('NFT発行エラー:', error)
       mintingResult.value = {
@@ -156,6 +163,11 @@
         error: error instanceof Error ? error.message : 'Unknown error'
       }
       emitStatusMessage('NFTの発行に失敗しました', 'error')
+      // 親コンポーネントにミント失敗を通知
+      emit('nftMinted', {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      })
     } finally {
       isMintingNFT.value = false
     }

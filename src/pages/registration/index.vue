@@ -32,6 +32,7 @@
           :is-metadata-uploaded="!!metadataUploadResult?.success"
           :has-existing-metadata="hasExistingMetadata"
           :is-already-uploaded="isFromListPage"
+          :is-nft-created="nftMintCompleted"
           @image-uploaded="handleImageUploaded"
           @status-message="handleStatusMessage"
           @metadata-upload-requested="handleMetadataUploadRequested"
@@ -60,6 +61,7 @@
       :metadata-url="metadataUploadResult.url || ''"
       :mint-requested="nftCreationRequested"
       @status-message="handleStatusMessage"
+      @nft-minted="handleNFTMinted"
     />
 
     <NuxtLink to="/" class="inline-block bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded transition mt-8">Top Page</NuxtLink>
@@ -97,6 +99,7 @@
   const imageSelectorRef = ref<InstanceType<typeof ImageSelector> | null>(null)  // ImageSelectorコンポーネントへの参照
   const hasExistingMetadata = ref<boolean>(false)  // DBに既存メタデータがあるかどうか
   const isFromListPage = ref<boolean>(false)  // Listページから遷移したかどうか
+  const nftMintCompleted = ref<boolean>(false)  // NFTミント完了フラグ
 
   // ステップ情報の定義
   const steps = ref([
@@ -111,8 +114,6 @@
     selectedFile.value = file
     selectedImageUrl.value = imageUrl
     selectedFileName.value = file.name
-    console.log('選択されたファイル:', file.name)
-    console.log('ファイルサイズ:', file.size, 'bytes')
   }
 
   // 画像アップロード完了時の処理
@@ -132,9 +133,6 @@
     }  // アップロード済みの画像情報
     // ステップ2をアクティブにする
     steps.value[1].isActive = true
-    console.log('画像アップロード完了:', fileName)
-    console.log('画像アップロードURL:', url)
-    console.log('画像description:', imageData?.description)
   }
 
   // NFT作成要求の処理
@@ -144,14 +142,24 @@
     steps.value[2].isActive = true
   }
 
+  // NFTミント完了時の処理
+  const handleNFTMinted = (result: { success: boolean; transactionHash?: string; tokenId?: string; error?: string }) => {
+    if (result.success) {
+      nftMintCompleted.value = true
+      handleStatusMessage(`NFTを発行しました！ Token ID: ${result.tokenId}`, 'success')
+    } else {
+      handleStatusMessage(`NFT発行エラー: ${result.error}`, 'error')
+    }
+    
+    // ミント要求フラグをリセット
+    nftCreationRequested.value = false
+  }
+
   // メタデータアップロード要求の処理
   const handleMetadataUploadRequested = () => {
-    console.log('📤 メタデータアップロード要求を受信')
-    console.log('uploadedImageInfo:', uploadedImageInfo.value)
     metadataUploadRequested.value = true
     // ステップ2をアクティブにする
     steps.value[1].isActive = true
-    console.log('metadataUploadRequested:', metadataUploadRequested.value)
   }
 
   // メタデータアップロード完了時の処理
@@ -160,34 +168,24 @@
     metadataUploadRequested.value = false  // 要求フラグをリセット
     
     if (result.success && result.hash && result.url && uploadedImageInfo.value) {
-      console.log('✅ メタデータアップロード成功、DBに保存中...')
-      console.log('保存するファイル名:', uploadedImageInfo.value.fileName)
-      console.log('Pinata CID:', result.hash)
-      console.log('Pinata URL:', result.url)
-      
       // DBにメタデータを保存
       const dbResult = await saveMetadataByImagePath(
         uploadedImageInfo.value.fileName,  // ファイル名（file_name）
         result.hash,  // pinata_cid
         result.url    // pinata_url
       )
-      console.log('DB保存結果:', dbResult)
       
       if (dbResult.success) {
-        console.log('メタデータをDBに保存しました')
         handleStatusMessage('メタデータをDBに保存しました', 'success')
         // ステップ3をアクティブにする
         steps.value[2].isActive = true
       } else {
-        console.error('メタデータのDB保存に失敗:', dbResult.error)
         handleStatusMessage(`DB保存エラー: ${dbResult.error}`, 'error')
       }
     } else if (result.success) {
       // ステップ3をアクティブにする（DB保存は行わない）
       steps.value[2].isActive = true
     }
-    
-    console.log('メタデータアップロード完了:', result)
   }
 
   // ステータスメッセージの処理
@@ -236,7 +234,6 @@
     const imageName = route.query.imageName as string
 
     if (fromList === 'true' && imageUrl && imageName) {
-      console.log('Listページから画像情報を受け取りました:', imageName)
       isFromListPage.value = true
       hasExistingMetadata.value = false  // 初期状態にリセット
       
@@ -278,31 +275,23 @@
 
       // DBから既存のメタデータ情報を確認
       const result = await getImageDetails(imageName)
-      console.log('getImageDetails結果:', result)
       
       if (result.success && result.details) {
-        console.log('result.details.metadata:', result.details.metadata)
-        
         // メタデータが配列で返される場合
         let metadata = null
         if (result.details.metadata) {
           if (Array.isArray(result.details.metadata)) {
-            console.log('metadataは配列です。長さ:', result.details.metadata.length)
             // 配列の場合、要素があれば最初の要素を取得
             metadata = result.details.metadata.length > 0 ? result.details.metadata[0] : null
           } else {
-            console.log('metadataは配列ではありません')
             // 配列でない場合はそのまま使用
             metadata = result.details.metadata
           }
         }
 
-        console.log('処理後のmetadata:', metadata)
-
         // metadataが存在し、かつ空のオブジェクトでない場合
         if (metadata && Object.keys(metadata).length > 0) {
           hasExistingMetadata.value = true
-          console.log('✅ 既存のメタデータが見つかりました')
           
           // メタデータがある場合、ステップ3もアクティブにする
           if ('pinata_url' in metadata && metadata.pinata_url) {
@@ -313,11 +302,18 @@
             }
             steps.value[2].isActive = true
           }
-        } else {
-          console.log('❌ メタデータはまだアップロードされていません')
+          
+          // Mint完了チェック：tokensテーブルに情報があるか確認
+          const tokens = metadata && 'tokens' in metadata ? metadata.tokens : null
+          
+          if (tokens && Array.isArray(tokens) && tokens.length > 0) {
+            // tokenが存在する場合、既にミント済み
+            nftMintCompleted.value = true
+            handleStatusMessage(`この画像は既にNFTとしてミント済みです（Token ID: ${tokens[0].token_id}）`, 'info')
+          } else {
+            nftMintCompleted.value = false
+          }
         }
-      } else {
-        console.log('❌ メタデータはまだアップロードされていません（result.detailsなし）')
       }
     }
   }
