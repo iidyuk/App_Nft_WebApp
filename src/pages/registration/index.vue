@@ -209,7 +209,7 @@
       case 'error':
         return 'bg-red-100 border border-red-400 text-red-700'
       case 'info':
-        return 'bg-blue-100 border border-blue-400 text-blue-700'
+        return 'bg-green-100 border border-green-400 text-green-700'
       default:
         return 'bg-gray-100 border border-gray-400 text-gray-700'
     }
@@ -309,7 +309,7 @@
           if (tokens && Array.isArray(tokens) && tokens.length > 0) {
             // tokenが存在する場合、既にミント済み
             nftMintCompleted.value = true
-            handleStatusMessage(`この画像は既にNFTとしてミント済みです（Token ID: ${tokens[0].token_id}）`, 'info')
+            handleStatusMessage('この画像は既にNFTとして記録されています', 'info')
           } else {
             nftMintCompleted.value = false
           }

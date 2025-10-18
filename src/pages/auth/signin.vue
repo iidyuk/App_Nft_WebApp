@@ -84,10 +84,12 @@
 <script setup lang="ts">
 // 認証機能の使用
 const { signIn } = useAuth()
+const route = useRoute()
 
-// フォームの状態
-const email = ref('test@example.com')
-const password = ref('password123')
+// signupページから遷移した場合は空欄、それ以外はデフォルト値を設定
+const isFromSignup = route.query.from === 'signup'
+const email = ref(isFromSignup ? '' : 'test@example.com')
+const password = ref(isFromSignup ? '' : 'password123')
 const errorMessage = ref('')
 const isLoading = ref(false)
 

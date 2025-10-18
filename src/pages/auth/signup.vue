@@ -130,17 +130,25 @@ const handleSignup = async () => {
   const { data, error } = await signUp(email.value, password.value)
   
   if (error) {
-    errorMessage.value = 'アカウント作成に失敗しました。メールアドレスが既に使用されている可能性があります。'
+    errorMessage.value = 'アカウント作成に失敗しました。'
     console.error('Signup error:', error)
+    isLoading.value = false
   } else {
-    successMessage.value = 'アカウントが作成されました！確認メールを送信しましたので、メールボックスを確認してください。'
+    successMessage.value = 'アカウントが作成されました！'
     // フォームをリセット
     email.value = ''
     password.value = ''
     confirmPassword.value = ''
+    
+    // 1秒後にサインインページに自動転送（フラグ付き）
+    setTimeout(() => {
+      navigateTo('/auth/signin?from=signup')
+    }, 1000)
   }
   
-  isLoading.value = false
+  if (!error) {
+    isLoading.value = false
+  }
 }
 
 // ページのメタ情報

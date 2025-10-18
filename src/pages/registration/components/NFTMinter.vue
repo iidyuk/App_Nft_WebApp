@@ -1,29 +1,29 @@
 <template>
   <!-- NFT発行処理中の表示 -->
   <div v-if="isMintingNFT" class="mt-4 p-4 bg-purple-50 border border-purple-200 rounded-lg">
-    <h3 class="text-lg font-medium text-purple-800 mb-4">NFT発行</h3>
+    <h3 class="text-lg font-medium text-purple-800 mb-4">NFT Mint</h3>
     <div class="text-center">
       <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mb-2"></div>
-      <p class="text-purple-700">NFTを発行中...</p>
+      <p class="text-purple-700">NFT Mint...</p>
     </div>
   </div>
 
   <!-- NFT発行完了時の表示 -->
   <div v-else-if="mintingResult" class="mt-4 p-4 rounded-lg" :class="mintingResult.success ? 'bg-green-100 border border-green-400 text-green-700' : 'bg-red-100 border border-red-400 text-red-700'">
-    <h3 class="text-lg font-medium mb-4">NFT発行</h3>
+    <h3 class="text-lg font-medium mb-4">NFT Mint</h3>
     <h4 class="font-semibold mb-2">{{ mintingResult.success ? 'NFTを発行しました' : 'NFTの発行に失敗しました' }}</h4>
 
     <div v-if="mintingResult.success" class="text-sm">
-      <p><strong>トランザクションハッシュ:</strong> 
+      <p><strong>Transaction Hash:</strong> 
         <a
           :href="`https://sepolia.etherscan.io/tx/${mintingResult.transactionHash}`"
-          target="_blank" class="text-blue-600 hover:underline break-all">{{ mintingResult.transactionHash }}
+          target="_blank" class="text-green-600 hover:underline break-all">{{ mintingResult.transactionHash }}
         </a>
       </p>
     </div>
     
     <div v-if="!mintingResult.success" class="text-sm">
-      <p><strong>エラー:</strong> {{ mintingResult.error }}</p>
+      <p><strong>Error:</strong> {{ mintingResult.error }}</p>
       <button 
         @click="retryMint" 
         class="mt-2 bg-red-500 hover:bg-red-600 text-white text-sm py-1 px-3 rounded"

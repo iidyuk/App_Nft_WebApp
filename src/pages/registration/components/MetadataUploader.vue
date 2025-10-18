@@ -1,16 +1,16 @@
 <template>
   <!-- メタデータアップロード処理中の表示 -->
   <div v-if="isUploading" class="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-    <h3 class="text-lg font-medium text-green-800 mb-4">NFTメタデータ作成</h3>
+    <h3 class="text-lg font-medium text-green-800 mb-4">NFT Metadata Creation</h3>
     <div class="text-center">
       <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mb-2"></div>
-      <p class="text-green-700">メタデータをPINATAにアップロード中...</p>
+      <p class="text-green-700">Metadata Uploading to PINATA...</p>
     </div>
   </div>
 
   <!-- アップロード完了時の表示 -->
   <div v-else-if="uploadResult" class="mt-4 p-4 rounded-lg" :class="uploadResult.success ? 'bg-green-100 border border-green-400 text-green-700' : 'bg-red-100 border border-red-400 text-red-700'">
-    <h3 class="text-lg font-medium mb-4">NFTメタデータ作成</h3>
+    <h3 class="text-lg font-medium mb-4">NFT Metadata Creation</h3>
     <h4 class="font-semibold mb-2">{{ uploadResult.message }}</h4>
 
     <div v-if="uploadResult.success" class="text-sm">
