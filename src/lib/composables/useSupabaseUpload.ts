@@ -20,12 +20,6 @@ export const useSupabaseUpload = () => {
         throw new Error('ユーザーが認証されていません')
       }
 
-      // ファイル拡張子をチェック
-      const fileExtension = file.name.split('.').at(-1)?.toLowerCase()
-      if (fileExtension !== 'jpg' && fileExtension !== 'jpeg' && fileExtension !== 'png') {
-        throw new Error('JPG/JPEG/PNGファイルのみアップロード可能です')
-      }
-
       // ユーザーIDフォルダ内にファイルをアップロード
       const now = new Date()
       const timestamp = now.getFullYear().toString() +
@@ -48,8 +42,53 @@ export const useSupabaseUpload = () => {
         })
 
       if (error) {
-        console.error('Supabase Storage エラー詳細:', error)
-        throw new Error(`アップロードエラー: ${error.message}`)
+        console.error('Supabase Storage エラー:', error.message)
+
+        // エラーメッセージを解析して、日本語のユーザーフレンドリーなメッセージに変換
+        let userMessage = `Upload Error: ${error.message}`
+        
+        // エラーメッセージの文字列を取得（error.message または error 自体）
+        const errorText = String(error.message || error).toLowerCase()
+        
+        // エラーパターンに応じて適切な日本語メッセージを設定
+        if (errorText.includes('daily upload limit') || 
+            errorText.includes('upload limit exceeded') ||
+            errorText.includes('limit exceeded')) {
+          // 1日のアップロード制限エラー
+          userMessage = '1日のアップロード制限に達しました'
+        } else if (errorText.includes('already exists') || errorText.includes('duplicate')) {
+          // ファイル重複エラー
+          userMessage = '同じ名前のファイルが既に存在します'
+        } else if (errorText.includes('payload too large') || 
+                   errorText.includes('file size') || 
+                   errorText.includes('size limit') ||
+                   errorText.includes('entity too large')) {
+          // ファイルサイズ超過エラー
+          userMessage = '50MB以下のファイルを選択してください'
+        } else if (errorText.includes('invalid file type') || 
+                   errorText.includes('mime type') ||
+                   errorText.includes('file type not allowed')) {
+          // ファイルタイプエラー
+        //   userMessage = 'このファイル形式はサポートされていません。JPG/JPEG/PNG形式のファイルを選択してください。'
+        // } else if (errorText.includes('file name') || 
+        //            errorText.includes('filename') ||
+        //            errorText.includes('invalid name')) {
+          // ファイル名エラー
+          userMessage = 'ファイル名が無効です。特殊文字や長すぎるファイル名は使用できません'
+        } else if (errorText.includes('permission') || 
+                   errorText.includes('unauthorized') ||
+                   errorText.includes('forbidden')) {
+          // 権限エラー
+          userMessage = 'アップロードする権限がありません。'
+        } else if (errorText.includes('bucket') || errorText.includes('not found')) {
+          // バケットエラー
+          userMessage = 'アップロード先が見つかりません。管理者にお問い合わせください。'
+        } else if (errorText.includes('network') || errorText.includes('timeout')) {
+          // ネットワークエラー
+          userMessage = 'ネットワークエラーが発生しました。接続を確認して再度お試しください'
+        }
+        
+        throw new Error(userMessage)
       }
 
       // アップロードされたファイルのURLを生成

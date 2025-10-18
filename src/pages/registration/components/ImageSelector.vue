@@ -75,6 +75,13 @@
         target.value = '' // ファイル選択をリセット
         return
       }
+
+      // ファイルサイズをチェック（5MB = 5 * 1024 * 1024 bytes）
+      const maxSizeInBytes = 5 * 1024 * 1024
+      if (file.size > maxSizeInBytes) {
+        const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2)
+        alert(`5MB以下のファイルを選択してください (ファイルサイズ${fileSizeMB}MB)`)
+      }
       
       // ファイルを保存
       selectedFile.value = file

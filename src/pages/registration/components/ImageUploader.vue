@@ -99,7 +99,8 @@
       emitStatusMessage('画像のアップロードが完了しました', 'success')
       emit('imageUploaded', result.url, result.fileName)  // 親コンポーネントにアップロード完了を通知
     } else {
-      emitStatusMessage('画像のアップロードに失敗しました', 'error')
+      // 具体的なエラーメッセージを表示（result.errorに詳細が入っている）
+      emitStatusMessage(result.error || '画像のアップロードに失敗しました', 'error')
     }
   }
 
