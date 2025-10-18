@@ -1,6 +1,6 @@
 <template>
   <div class="max-w-lg mx-auto mt-20 p-8 text-center">
-    <h1 class="text-3xl font-bold mb-4">nft app</h1>
+    <h1 class="text-3xl font-bold mb-4">nft dapp</h1>
     <p class="mb-6 text-gray-700">Let's make NFTs from images.</p>
       
     <div v-if="!loading" class="space-y-4">

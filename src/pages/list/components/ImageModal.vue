@@ -276,7 +276,14 @@ const getChain = (image: ImageFile | null) => {
   // トークン情報からchainを取得
   const tokens = metadata && 'tokens' in metadata ? metadata.tokens : null
   if (tokens && Array.isArray(tokens) && tokens.length > 0) {
-    return tokens[0].chain || '-'
+    const chain = tokens[0].chain
+    
+    // チェーン名を表示用に変換
+    if (chain === 'sepolia') {
+      return 'Ethereum(Sepolia)'
+    }
+    
+    return chain || '-'
   }
   
   return '-'

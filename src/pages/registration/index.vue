@@ -309,7 +309,7 @@
           if (tokens && Array.isArray(tokens) && tokens.length > 0) {
             // tokenが存在する場合、既にミント済み
             nftMintCompleted.value = true
-            handleStatusMessage('この画像は既にNFTとして記録されています', 'info')
+            handleStatusMessage('この画像はNFTとしてブロックチェーンに記録されています', 'info')
           } else {
             nftMintCompleted.value = false
           }
