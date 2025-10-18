@@ -61,7 +61,7 @@
         <div>
           <button
             type="submit"
-            :disabled="isLoading"
+            :disabled=true
             class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <span v-if="isLoading" class="absolute left-0 inset-y-0 flex items-center pl-3">
@@ -130,8 +130,36 @@ const handleSignup = async () => {
   const { data, error } = await signUp(email.value, password.value)
   
   if (error) {
-    errorMessage.value = 'アカウント作成に失敗しました。'
-    console.error('Signup error:', error)
+    // エラーメッセージを解析して、日本語のユーザーフレンドリーなメッセージに変換
+    const errorText = String(error.message || error).toLowerCase()
+    console.error('Signup error:', error.message)
+    
+    if (errorText.includes('database error saving new user')) {
+      // データベースエラー（アカウント作成制限の可能性）
+      console.warn('⚠️ アカウント作成制限に達している可能性があります')
+      errorMessage.value = 'アカウント作成に失敗しました'
+    } else if (errorText.includes('daily account creation limit') || 
+               errorText.includes('account creation limit exceeded') ||
+               errorText.includes('creation limit exceeded')) {
+      // 1日のアカウント作成制限エラー（直接）
+      console.warn('⚠️ アカウント作成制限に達しました')
+      errorMessage.value = 'アカウント作成に失敗しました'
+    } else if (errorText.includes('user already registered') || 
+               errorText.includes('already exists') ||
+               errorText.includes('duplicate')) {
+      // 既存ユーザーエラー
+      errorMessage.value = 'このメールアドレスは既に登録されています'
+    } else if (errorText.includes('invalid email')) {
+      // メールアドレスエラー
+      errorMessage.value = '有効なメールアドレスを入力してください'
+    } else if (errorText.includes('password') && errorText.includes('weak')) {
+      // パスワード強度エラー
+      errorMessage.value = 'パスワードが弱すぎます。より強力なパスワードを設定してください'
+    } else {
+      // その他のエラー
+      errorMessage.value = 'アカウント作成に失敗しました'
+    }
+    
     isLoading.value = false
   } else {
     successMessage.value = 'アカウントが作成されました！'
