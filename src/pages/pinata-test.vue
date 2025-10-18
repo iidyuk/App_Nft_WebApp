@@ -33,13 +33,13 @@
         ></textarea>
       </div>
       
-      <!-- <button
+      <button
         @click="testJSONUpload"
-        :disabled="isJSONUploading || !metadataJSON"
+        :disabled="true"
         class="bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white font-semibold py-2 px-6 rounded transition"
       >
         {{ isJSONUploading ? 'Uploading...' : 'Upload JSON Metadata' }}
-      </button> -->
+      </button>
       
       <div v-if="jsonUploadResult" class="mt-4 p-4 rounded-lg" :class="jsonUploadResult.success ? 'bg-green-100 border border-green-400 text-green-700' : 'bg-red-100 border border-red-400 text-red-700'">
         <h3 class="font-semibold mb-2">{{ jsonUploadResult.message }}</h3>
@@ -72,7 +72,7 @@
     </div>
 
     <div class="mt-8">
-      <NuxtLink to="/" class="inline-block bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded transition">トップページへ</NuxtLink>
+      <NuxtLink to="/" class="inline-block bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded transition">Top Page</NuxtLink>
     </div>
   </div>
 </template>
