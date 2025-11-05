@@ -20,6 +20,10 @@
 </template>
 
 <script setup lang="ts">
+defineOptions({
+  name: 'LoadingSpinner'
+})
+
 interface Props {
   showText?: boolean
 }

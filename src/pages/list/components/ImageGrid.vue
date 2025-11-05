@@ -1,5 +1,6 @@
 <template>
-  <!-- ローディング状態 -->
+  <div>
+    <!-- ローディング状態 -->
   <div v-if="isLoading" class="py-8">
     <Spinner />
   </div>
@@ -11,8 +12,8 @@
       <p class="text-sm">{{ errorMessage }}</p>
     </div>
     <button 
-      @click="$emit('retry')" 
-      class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded transition"
+      class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded transition" 
+      @click="$emit('retry')"
     >
       再試行
     </button>
@@ -39,7 +40,7 @@
             :alt="image.name"
             class="w-full h-auto object-cover rounded-t"
             @error="handleImageError"
-          />
+          >
           <!-- ブロックチェーンロゴ（ミント済みの場合のみ表示） -->
           <div 
             v-if="getChainForImage(image.name)" 
@@ -82,15 +83,16 @@
     </div>
   </div>
 
-  <!-- 画像モーダル -->
-  <ImageModal 
-    :is-visible="showPopup"
-    :image="selectedImage"
-    @close="closePopup"
-    @watch="handleWatch"
-    @list="handleList"
-    @register="handleRegister"
-  />
+    <!-- 画像モーダル -->
+    <ImageModal 
+      :is-visible="showPopup"
+      :image="selectedImage"
+      @close="closePopup"
+      @watch="handleWatch"
+      @list="handleList"
+      @register="handleRegister"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -121,7 +123,7 @@ interface Props {
 const props = defineProps<Props>()
 
 // Emits
-const emit = defineEmits<{
+const _emit = defineEmits<{
   'retry': []
 }>()
 

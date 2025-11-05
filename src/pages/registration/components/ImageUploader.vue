@@ -2,10 +2,10 @@
   <div class="flex flex-col items-center gap-12">
     <!-- Supabaseアップロードボタン -->
       <button
-        @click="handleUpload"
         :disabled="isUploading || isUploaded || isAlreadyUploaded"
         class="group disabled:bg-gray-300 text-white font-semibold py-2 px-2 rounded transition relative overflow-hidden w-32 sm:w-40"
         :class="(isUploaded || isAlreadyUploaded) ? 'bg-gray-400' : 'bg-green-500 hover:bg-green-600'"
+        @click="handleUpload"
       >
         <span class="block transition-transform duration-300 group-hover:-translate-y-[150%]">
           Upload Image
@@ -17,10 +17,10 @@
     
     <!-- Upload Metadataボタン -->
      <button
-       @click="handleMetadataUpload"
        :disabled="(!isUploaded && !isAlreadyUploaded) || isMetadataUploaded || hasExistingMetadata"
        class="group disabled:bg-gray-300 text-white font-semibold py-2 px-2 rounded transition relative overflow-hidden w-32 sm:w-40"
        :class="(isMetadataUploaded || hasExistingMetadata) ? 'bg-gray-400' : ((isUploaded || isAlreadyUploaded) ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-300')"
+       @click="handleMetadataUpload"
      >
        <span class="block transition-transform duration-300 group-hover:-translate-y-[150%]">
          Upload Metadata
@@ -32,10 +32,10 @@
     
     <!-- Create NFTボタン -->
     <button
-      @click="handleCreateNFT"
       :disabled="!isMetadataUploaded || isNftCreated"
       class="group disabled:bg-gray-300 text-white font-semibold py-2 px-2 rounded transition relative overflow-hidden w-32 sm:w-40"
       :class="isNftCreated ? 'bg-gray-400' : (isMetadataUploaded ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-300')"
+      @click="handleCreateNFT"
     >
       <span class="block transition-transform duration-300 group-hover:-translate-y-[150%]">
         Mint NFT

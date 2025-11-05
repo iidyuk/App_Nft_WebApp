@@ -18,7 +18,7 @@
         accept="image/jpeg, image/jpg, image/png"
         class="hidden"
         @change="handleImageSelect"
-      />
+      >
     </div>
 
     <!-- 選択された画像のプレビュー -->
@@ -30,7 +30,7 @@
           alt="選択された画像"
           class="rounded-lg object-contain"
           style="width: 100%; max-width: 300px; max-height: 14rem;"
-        />
+        >
         <p class="text-sm text-gray-500 mt-2">{{ selectedFileName }}</p>
       </div>
       
@@ -38,7 +38,7 @@
       <div class="flex flex-col justify-around items-center" style="height: 16rem;">
         <div class="flex flex-col items-center gap-12">
           <!-- アップロードボタンはImageUploaderコンポーネントで表示 -->
-          <slot name="upload-section"></slot>
+          <slot name="upload-section"/>
         </div>
       </div>
     </div>

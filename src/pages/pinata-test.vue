@@ -6,9 +6,9 @@
     <div class="mb-6 p-6 bg-gray-50 rounded-lg">
       <h2 class="text-xl font-semibold text-gray-700 mb-4">API Connection Check</h2>
       <button
-        @click="testConnection"
         :disabled="isTesting"
         class="bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white font-semibold py-2 px-6 rounded transition"
+        @click="testConnection"
       >
         {{ isTesting ? 'Testing...' : 'Test API Connection' }}
       </button>
@@ -30,13 +30,13 @@
           v-model="metadataJSON"
           class="w-full h-32 p-3 border border-gray-300 rounded-lg resize-none"
           placeholder="JSONメタデータを入力してください..."
-        ></textarea>
+        />
       </div>
       
       <button
-        @click="testJSONUpload"
         :disabled="true"
         class="bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white font-semibold py-2 px-6 rounded transition"
+        @click="testJSONUpload"
       >
         {{ isJSONUploading ? 'Uploading...' : 'Upload JSON Metadata' }}
       </button>
@@ -83,8 +83,8 @@ import { checkPinataConnection, uploadMetadataToPinata } from '~/lib/external/pi
 // リアクティブ変数
 const isTesting = ref(false)
 const isJSONUploading = ref(false)
-const connectionResult = ref<any>(null)
-const jsonUploadResult = ref<any>(null)
+const connectionResult = ref<{ success: boolean; message: string; error?: string } | null>(null)
+const jsonUploadResult = ref<{ success: boolean; message: string; cid?: string; error?: string } | null>(null)
 const metadataJSON = ref(`{
   "name": "Sample NFT Metadata",
   "description": "This is a sample NFT metadata for Pinata test.",

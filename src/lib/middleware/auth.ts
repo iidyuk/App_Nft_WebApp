@@ -1,6 +1,6 @@
-export default defineNuxtRouteMiddleware(async (to, from) => {
+export default defineNuxtRouteMiddleware(async (_to, _from) => {
   // クライアントサイドでのみ実行
-  if (process.server) return
+  if (import.meta.server) return
   
   const { createClient } = await import('@supabase/supabase-js')
   const config = useRuntimeConfig()

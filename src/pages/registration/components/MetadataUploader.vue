@@ -3,7 +3,7 @@
   <div v-if="isUploading" class="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
     <h3 class="text-lg font-medium text-green-800 mb-4">NFT Metadata Creation</h3>
     <div class="text-center">
-      <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mb-2"></div>
+      <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mb-2"/>
       <p class="text-green-700">Metadata Uploading to PINATA...</p>
     </div>
   </div>
@@ -21,8 +21,8 @@
     <div v-if="!uploadResult.success" class="text-sm">
       <p><strong>エラー:</strong> {{ uploadResult.error }}</p>
       <button 
-        @click="retryUpload" 
-        class="mt-2 bg-red-500 hover:bg-red-600 text-white text-sm py-1 px-3 rounded"
+        class="mt-2 bg-red-500 hover:bg-red-600 text-white text-sm py-1 px-3 rounded" 
+        @click="retryUpload"
       >
         再試行
       </button>
@@ -66,7 +66,7 @@
   const uploadResult = ref<MetadataUploadResult | null>(null)
 
   // アップローダーを表示するかどうか
-  const shouldShowUploader = computed(() => {
+  const _shouldShowUploader = computed(() => {
     return props.uploadedImageInfo !== null
   })
 

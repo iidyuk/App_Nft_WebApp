@@ -44,7 +44,7 @@ export const checkPinataConnection = async () => {
 } 
 
 // JSONメタデータをPinataにアップロードする関数
-export const uploadMetadataToPinata = async (metadata: any, fileName?: string) => {
+export const uploadMetadataToPinata = async (metadata: Record<string, unknown>, fileName?: string) => {
   try {
     // 環境変数の取得・チェック
     const config = useRuntimeConfig()

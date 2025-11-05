@@ -3,11 +3,11 @@
   <div v-if="isVisible" class="fixed inset-0 z-50 flex items-center justify-center p-4" @click="closeModal">
     
     <!-- 背景オーバーレイ -->
-    <div class="absolute inset-0 bg-gray-900 bg-opacity-95"></div>
+    <div class="absolute inset-0 bg-gray-900 bg-opacity-95"/>
     <Transition name="fade">
       <div v-if="isFullscreen">
-        <div class="absolute inset-0 bg-yellow-200 bg-opacity-10 z-10"></div>
-        <div class="absolute inset-0 bg-gray-900 bg-opacity-95"></div>
+        <div class="absolute inset-0 bg-yellow-200 bg-opacity-10 z-10"/>
+        <div class="absolute inset-0 bg-gray-900 bg-opacity-95"/>
       </div>
     </Transition>
 
@@ -16,9 +16,9 @@
       
       <!-- ヘッダー（閉じるボタン） -->
       <div  v-if="!isFullscreen" class="flex justify-end p-4">
-        <button @click="closeModal" class="text-gray-500 hover:text-gray-700 transition-colors">
+        <button class="text-gray-500 hover:text-gray-700 transition-colors" @click="closeModal">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
           </svg>
         </button>
       </div>
@@ -41,7 +41,7 @@
                 :src="image.url" 
                 :alt="image.name"
                 class="w-full h-full object-cover"
-              />
+              >
             </div>
           </div>
 
@@ -125,7 +125,7 @@
               :src="image.url" 
               :alt="image.name"
               class="max-w-full max-h-full object-contain transition-all duration-300 ease-in-out"
-            />
+            >
           </div>
         </div>
       </div>
@@ -133,20 +133,20 @@
       <!-- ボタン（通常表示時のみ） -->
       <div v-if="!isFullscreen" class="flex justify-end gap-3 p-4 border-t border-gray-200">
         <button 
-          @click="enterFullscreen"
           class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors"
+          @click="enterFullscreen"
         >
           Watch
         </button>
         <button 
-          @click="closeModal"
           class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors"
+          @click="closeModal"
         >
           List
         </button>
         <button 
-          @click="handleRegister"
           class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors"
+          @click="handleRegister"
         >
           Register
         </button>
@@ -192,7 +192,12 @@ const { getImageDetails } = useImageDetails()
 const isFullscreen = ref(false)
 
 // 画像詳細情報の状態管理
-const imageDetails = ref<any>(null)
+interface ImageDetails {
+  tokenId: string
+  metadataUrl: string
+  owner: string
+}
+const imageDetails = ref<ImageDetails | null>(null)
 const isLoadingDetails = ref(false)
 
 // Methods
@@ -211,13 +216,13 @@ const exitFullscreen = () => {
 }
 
 // ボタンクリックハンドラー
-const handleWatch = () => {
+const _handleWatch = () => {
   if (props.image) {
     emit('watch', props.image)
   }
 }
 
-const handleList = () => {
+const _handleList = () => {
   if (props.image) {
     emit('list', props.image)
   }

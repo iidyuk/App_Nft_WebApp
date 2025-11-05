@@ -3,7 +3,7 @@
   <div v-if="isMintingNFT" class="mt-4 p-4 bg-purple-50 border border-purple-200 rounded-lg">
     <h3 class="text-lg font-medium text-purple-800 mb-4">NFT Mint</h3>
     <div class="text-center">
-      <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mb-2"></div>
+      <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mb-2"/>
       <p class="text-purple-700">NFT Mint...</p>
     </div>
   </div>
@@ -25,8 +25,8 @@
     <div v-if="!mintingResult.success" class="text-sm">
       <p><strong>Error:</strong> {{ mintingResult.error }}</p>
       <button 
-        @click="retryMint" 
-        class="mt-2 bg-red-500 hover:bg-red-600 text-white text-sm py-1 px-3 rounded"
+        class="mt-2 bg-red-500 hover:bg-red-600 text-white text-sm py-1 px-3 rounded" 
+        @click="retryMint"
       >
         再試行
       </button>
@@ -59,7 +59,7 @@
   const { saveTokenByMetadataUrl } = useTokenDB()
 
   const isMintingNFT = ref(false)
-  const mintingResult = ref<any>(null)
+  const mintingResult = ref<{ success: boolean; transactionHash?: string; tokenId?: string; error?: string } | null>(null)
 
   // 環境変数からコントラクトアドレスを取得
   const config = useRuntimeConfig()
@@ -90,15 +90,11 @@
 
     try {
       // MetaMaskなどのウォレットプロバイダに接続
-      // @ts-ignore
-      if (!window.ethereum) {
-        emitStatusMessage('MetaMask (またはWeb3ウォレット) がインストールされていません。', 'error')
-        isMintingNFT.value = false
-        return
-      }
+      // @ts-expect-error - window.ethereum is injected by MetaMask
+      const ethereum = window.ethereum as unknown as { request: (args: { method: string }) => Promise<string[]> }
+      await ethereum.request({ method: 'eth_requestAccounts' })
 
       // ウォレットプロバイダに接続
-      // @ts-ignore
       const provider = new ethers.providers.Web3Provider(window.ethereum)  // ウォレットプロバイダのインスタンス  // アプリとチェーンを接続するためのインターフェイス
       await provider.send("eth_requestAccounts", []) // ウォレットに接続を要求
       const signer = provider.getSigner() // 署名者（トランザクション送信者）のオブジェクトを取得  // トランザクションの送信、署名、ガス代の支払いが可能
@@ -115,6 +111,7 @@
       let tokenId = 'unknown'
       try {
         // Transfer イベントを探す（ERC721標準）
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const transferEvent = receipt.events?.find((e: any) => e.event === 'Transfer')
         if (transferEvent && transferEvent.args) {
           // tokenIdは通常3番目の引数（from, to, tokenId）

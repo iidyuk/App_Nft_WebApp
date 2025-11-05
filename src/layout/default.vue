@@ -8,8 +8,8 @@
           <div v-if="isAuthenticated" class="flex items-center space-x-4">
             <span class="text-sm text-gray-600">{{ user?.email }}</span>
             <button 
-              @click="handleLogout"
               class="text-sm text-green-600 hover:text-green-800 underline"
+              @click="handleLogout"
             >
               Sign out
             </button>

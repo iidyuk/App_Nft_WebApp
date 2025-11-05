@@ -32,7 +32,7 @@ try {
     }
   })
   console.log('✅ .envファイルを読み込みました\n')
-} catch (error) {
+} catch {
   console.log('⚠️  .envファイルが見つかりません。環境変数を直接指定してください。\n')
 }
 
