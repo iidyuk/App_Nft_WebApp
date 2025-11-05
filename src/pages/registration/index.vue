@@ -3,7 +3,7 @@
     <h1 class="text-3xl font-bold mb-6">Registration</h1>
     
     <!-- ステップ表示 -->
-    <div class="mb-4 flex justify-center items-center">
+    <!-- <div class="mb-4 flex justify-center items-center">
       <div 
         v-for="(step, index) in steps" 
         :key="index"
@@ -17,7 +17,7 @@
           {{ step.title }}
         </span>
       </div>
-    </div>
+    </div> -->
 
     <!-- 画像選択・アップロード用コンポーネント @はv-on :はv-bind -->
     <ImageSelector 
@@ -102,11 +102,11 @@
   const nftMintCompleted = ref<boolean>(false)  // NFTミント完了フラグ
 
   // ステップ情報の定義
-  const steps = ref([
-    { number: 1, title: '画像アップロード', isActive: true },
-    { number: 2, title: 'メタデータ作成', isActive: false },
-    { number: 3, title: 'NFT発行', isActive: false }
-  ])
+  // const steps = ref([
+  //   { number: 1, title: '画像アップロード', isActive: true },
+  //   { number: 2, title: 'メタデータ作成', isActive: false },
+  //   { number: 3, title: 'NFT発行', isActive: false }
+  // ])
 
   //// 関数定義
   // 画像選択時の処理
@@ -132,14 +132,14 @@
       description: imageData?.description || undefined
     }  // アップロード済みの画像情報
     // ステップ2をアクティブにする
-    steps.value[1].isActive = true
+    // steps.value[1].isActive = true
   }
 
   // NFT作成要求の処理
   const handleNFTCreationRequested = () => {
     nftCreationRequested.value = true
     // ステップ3をアクティブにする
-    steps.value[2].isActive = true
+    // steps.value[2].isActive = true
   }
 
   // NFTミント完了時の処理
@@ -159,7 +159,7 @@
   const handleMetadataUploadRequested = () => {
     metadataUploadRequested.value = true
     // ステップ2をアクティブにする
-    steps.value[1].isActive = true
+    // steps.value[1].isActive = true
   }
 
   // メタデータアップロード完了時の処理
@@ -178,13 +178,13 @@
       if (dbResult.success) {
         handleStatusMessage('メタデータをDBに保存しました', 'success')
         // ステップ3をアクティブにする
-        steps.value[2].isActive = true
+        // steps.value[2].isActive = true
       } else {
         handleStatusMessage(`DB保存エラー: ${dbResult.error}`, 'error')
       }
     } else if (result.success) {
       // ステップ3をアクティブにする（DB保存は行わない）
-      steps.value[2].isActive = true
+      // steps.value[2].isActive = true
     }
   }
 
@@ -271,7 +271,7 @@
       }
       
       // ステップ2をアクティブにする（画像アップロード完了済み）
-      steps.value[1].isActive = true
+      // steps.value[1].isActive = true
 
       // DBから既存のメタデータ情報を確認
       const result = await getImageDetails(imageName)
@@ -300,7 +300,7 @@
               url: metadata.pinata_url,
               message: '既存のメタデータが読み込まれました'
             }
-            steps.value[2].isActive = true
+            // steps.value[2].isActive = true
           }
           
           // Mint完了チェック：tokensテーブルに情報があるか確認
