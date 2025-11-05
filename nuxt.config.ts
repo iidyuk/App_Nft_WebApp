@@ -54,4 +54,10 @@ export default defineNuxtConfig({
       },
     }
   },
+
+  vite: {
+    test: {
+      environment: 'happy-dom',
+    },
+  },
 })

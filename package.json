@@ -14,7 +14,10 @@
     "lint:fix": "biome lint --write .",
     "format": "biome format --write .",
     "format:check": "biome format .",
-    "check": "biome check --write ."
+    "check": "biome check --write .",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage"
   },
   "dependencies": {
     "@nuxt/fonts": "^0.11.4",
@@ -30,6 +33,12 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
-    "supabase": "^2.51.0"
+    "@nuxt/test-utils": "^3.17.6",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "@vitest/ui": "^3.2.0",
+    "@vue/test-utils": "^2.4.6",
+    "happy-dom": "^15.11.7",
+    "supabase": "^2.51.0",
+    "vitest": "^3.2.0"
   }
 }
