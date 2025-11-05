@@ -35,7 +35,6 @@ export default defineNuxtConfig({
   },
 
   modules: [
-    '@nuxt/eslint',
     '@nuxtjs/tailwindcss',
     '@nuxt/icon',
     '@nuxt/fonts'
@@ -54,5 +53,11 @@ export default defineNuxtConfig({
         prefix: 'og: https://ogp.me/ns#'
       },
     }
+  },
+
+  vite: {
+    test: {
+      environment: 'happy-dom',
+    },
   },
 })

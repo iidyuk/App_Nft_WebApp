@@ -9,15 +9,21 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "cleanup:metadata": "node scripts/cleanup-orphan-metadata.js",
-    "cleanup:metadata:dry": "node scripts/cleanup-orphan-metadata.js --dry-run"
+    "cleanup:metadata:dry": "node scripts/cleanup-orphan-metadata.js --dry-run",
+    "lint": "biome lint .",
+    "lint:fix": "biome lint --write .",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
+    "check": "biome check --write .",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage"
   },
   "dependencies": {
-    "@nuxt/eslint": "^1.5.2",
     "@nuxt/fonts": "^0.11.4",
     "@nuxt/icon": "^1.15.0",
     "@nuxtjs/tailwindcss": "^6.14.0",
     "@supabase/supabase-js": "^2.39.7",
-    "eslint": "^9.30.1",
     "ethers": "5.7",
     "nft.storage": "^7.2.0",
     "nuxt": "^3.17.6",
@@ -26,6 +32,13 @@
     "vue-router": "^4.5.1"
   },
   "devDependencies": {
-    "supabase": "^2.51.0"
+    "@biomejs/biome": "^1.9.4",
+    "@nuxt/test-utils": "^3.17.6",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "@vitest/ui": "^3.2.0",
+    "@vue/test-utils": "^2.4.6",
+    "happy-dom": "^15.11.7",
+    "supabase": "^2.51.0",
+    "vitest": "^3.2.0"
   }
 }
