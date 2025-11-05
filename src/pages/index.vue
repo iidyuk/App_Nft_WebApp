@@ -37,12 +37,6 @@ definePageMeta({
   middleware: 'auth'
 })
 
-// 認証機能の使用
-const { user, loading, isAuthenticated, initAuth } = useAuth()
-
-// 認証を初期化
-onMounted(async () => {
-  await initAuth()
-  console.log('Auth state after init:', { user: user.value, isAuthenticated: isAuthenticated.value })
-})
+// middlewareで認証済みのため、loadingは不要
+const loading = ref(false)
 </script>
